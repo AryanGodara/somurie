@@ -11,7 +11,7 @@ import { Home } from "./components/DemoComponents";
 import { Features } from "./components/DemoComponents";
 import { ClientOnlyWallet_Privy } from "./components/ClientOnlyWallet_Privy";
 import { ClientOnlySaveFrame } from "./components/ClientOnlySaveFrame";
-import { ClientOnlyProvider } from "./components/ClientOnlyProvider_Deprecated";
+// Blockchain features moved to separate page
 
 export default function App() {
   const { setFrameReady, isFrameReady, context } = useMiniKit();
@@ -35,9 +35,8 @@ export default function App() {
   // Moved saveFrameButton to ClientOnlySaveFrame component
 
   return (
-    <ClientOnlyProvider>
-      <div className="flex flex-col min-h-screen font-sans text-[var(--app-foreground)] mini-app-theme from-[var(--app-background)] to-[var(--app-gray)]">
-        <div className="w-full max-w-md mx-auto px-4 py-3">
+    <div className="flex flex-col min-h-screen font-sans text-[var(--app-foreground)] mini-app-theme from-[var(--app-background)] to-[var(--app-gray)]">
+      <div className="w-full max-w-md mx-auto px-4 py-3">
         <header className="flex justify-between items-center mb-3 h-11">
           <div>
             <ClientOnlyWallet_Privy />
@@ -62,6 +61,5 @@ export default function App() {
         </footer>
         </div>
       </div>
-    </ClientOnlyProvider>
   );
 }

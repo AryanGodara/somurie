@@ -165,7 +165,7 @@ export function Home({ setActiveTab }: HomeProps) {
           Create, organize and manage your personal notes with this Mini App built with OnchainKit.
         </p>
         <Button
-          onClick={() => setActiveTab("features")}
+          onClick={() => window.location.href = "/blockchain-features"}
           icon={<Icon name="arrow-right" size="sm" />}
         >
           Explore Features
@@ -173,8 +173,6 @@ export function Home({ setActiveTab }: HomeProps) {
       </Card>
 
       <NotesApp />
-
-      <TransactionCard />
     </div>
   );
 }
