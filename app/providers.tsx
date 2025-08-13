@@ -15,8 +15,11 @@ export function Providers(props: { children: ReactNode }) {
         embeddedWallets: {
           ethereum: {
             createOnLogin: 'users-without-wallets'
-          }
-        }
+          },
+        },
+        appearance: {
+          walletList: ["detected_wallets"],
+        },
       }}
     >
       <MiniKitProvider

@@ -5,27 +5,13 @@ import {
   useAddFrame,
   useOpenUrl,
 } from "@coinbase/onchainkit/minikit";
-import {
-  Name,
-  Identity,
-  Address,
-  Avatar,
-  EthBalance,
-} from "@coinbase/onchainkit/identity";
-import {
-  ConnectWallet,
-  Wallet,
-  WalletDropdown,
-  WalletDropdownDisconnect,
-} from "@coinbase/onchainkit/wallet";
-import { useEffect, useMemo, useState, useCallback } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { Button } from "./components/DemoComponents";
-import { Icon } from "./components/DemoComponents";
 import { Home } from "./components/DemoComponents";
 import { Features } from "./components/DemoComponents";
-import { ClientOnlyWallet } from "./components/ClientOnlyWallet";
+import { ClientOnlyWallet_Privy } from "./components/ClientOnlyWallet_Privy";
 import { ClientOnlySaveFrame } from "./components/ClientOnlySaveFrame";
-import { ClientOnlyProvider } from "./components/ClientOnlyProvider";
+import { ClientOnlyProvider } from "./components/ClientOnlyProvider_Deprecated";
 
 export default function App() {
   const { setFrameReady, isFrameReady, context } = useMiniKit();
@@ -54,7 +40,7 @@ export default function App() {
         <div className="w-full max-w-md mx-auto px-4 py-3">
         <header className="flex justify-between items-center mb-3 h-11">
           <div>
-            <ClientOnlyWallet />
+            <ClientOnlyWallet_Privy />
           </div>
           <ClientOnlySaveFrame />
         </header>

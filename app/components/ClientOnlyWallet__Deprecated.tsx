@@ -1,5 +1,8 @@
 "use client";
 
+// NOTE: This component is deprecated and kept for reference only.
+// The app now uses ClientOnlyWallet_Privy.tsx for wallet functionality.
+
 import { useState, useEffect } from "react";
 import {
   Wallet,
