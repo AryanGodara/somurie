@@ -1,9 +1,9 @@
 'use client';
 
 import dynamic from 'next/dynamic';
-import { MiniAppProvider } from '@neynar/react';
+import { PrivyProvider } from '~/components/providers/PrivyProvider';
 import { SafeFarcasterSolanaProvider } from '~/components/providers/SafeFarcasterSolanaProvider';
-import { ANALYTICS_ENABLED, RETURN_URL } from '~/lib/constants';
+import { RETURN_URL } from '~/lib/constants';
 
 const WagmiProvider = dynamic(
   () => import('~/components/providers/WagmiProvider'),
@@ -21,15 +21,11 @@ export function Providers({
     process.env.SOLANA_RPC_ENDPOINT || 'https://solana-rpc.publicnode.com';
   return (
     <WagmiProvider>
-      <MiniAppProvider
-        analyticsEnabled={ANALYTICS_ENABLED}
-        backButtonEnabled={true}
-        returnUrl={RETURN_URL}
-      >
+      <PrivyProvider>
         <SafeFarcasterSolanaProvider endpoint={solanaEndpoint}>
           {children}
         </SafeFarcasterSolanaProvider>
-      </MiniAppProvider>
+      </PrivyProvider>
     </WagmiProvider>
   );
 }

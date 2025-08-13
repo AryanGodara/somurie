@@ -1,21 +1,19 @@
 'use client';
 
 import { useCallback, useState } from 'react';
-import { SignIn as SignInCore } from '@farcaster/miniapp-sdk';
-import { useQuickAuth } from '~/hooks/useQuickAuth';
+import { usePrivy } from '@privy-io/react-auth';
 import { Button } from '../Button';
 
 /**
- * SignIn component handles Farcaster authentication using QuickAuth.
+ * SignIn component handles user authentication using Privy.
  *
- * This component provides a complete authentication flow for Farcaster users:
- * - Uses the built-in QuickAuth functionality from the Farcaster SDK
- * - Manages authentication state in memory (no persistence)
+ * This component provides a complete authentication flow for users:
+ * - Uses Privy for authentication with multiple methods (Farcaster, wallet, email)
+ * - Manages authentication state
  * - Provides sign-out functionality
- * - Displays authentication status and results
+ * - Displays authentication status and results including Farcaster details when available
  *
- * The component integrates with the Farcaster Frame SDK and QuickAuth
- * to provide seamless authentication within mini apps.
+ * The component integrates with the Privy Auth SDK to provide seamless authentication.
  *
  * @example
  * ```tsx
@@ -37,16 +35,14 @@ export function SignIn() {
   const [signInFailure, setSignInFailure] = useState<string>();
 
   // --- Hooks ---
-  const { authenticatedUser, status, signIn, signOut } = useQuickAuth();
+  const { authenticated, user, login, logout, ready } = usePrivy();
 
   // --- Handlers ---
   /**
-   * Handles the sign-in process using QuickAuth.
+   * Handles the sign-in process using Privy.
    *
-   * This function uses the built-in QuickAuth functionality:
-   * 1. Gets a token from QuickAuth (handles SIWF flow automatically)
-   * 2. Validates the token with our server
-   * 3. Updates the session state
+   * This function uses Privy's login functionality which supports multiple authentication methods
+   * including Farcaster, wallet, and email.
    *
    * @returns Promise<void>
    */
@@ -54,63 +50,69 @@ export function SignIn() {
     try {
       setAuthState(prev => ({ ...prev, signingIn: true }));
       setSignInFailure(undefined);
-
-      const success = await signIn();
-
-      if (!success) {
-        setSignInFailure('Authentication failed');
-      }
+      
+      // Privy login handles the authentication flow
+      login();
     } catch (e) {
-      if (e instanceof SignInCore.RejectedByUser) {
-        setSignInFailure('Rejected by user');
-        return;
-      }
-      setSignInFailure('Unknown error');
+      setSignInFailure('Authentication error');
+      console.error('Sign-in error:', e);
     } finally {
       setAuthState(prev => ({ ...prev, signingIn: false }));
     }
-  }, [signIn]);
+  }, [login]);
 
   /**
    * Handles the sign-out process.
    *
-   * This function clears the QuickAuth session and resets the local state.
+   * This function uses Privy's logout functionality to end the user session.
    *
    * @returns Promise<void>
    */
   const handleSignOut = useCallback(async () => {
     try {
       setAuthState(prev => ({ ...prev, signingOut: true }));
-      await signOut();
+      await logout();
     } finally {
       setAuthState(prev => ({ ...prev, signingOut: false }));
     }
-  }, [signOut]);
+  }, [logout]);
 
   // --- Render ---
   return (
     <>
       {/* Authentication Buttons */}
-      {status !== 'authenticated' && (
+      {!authenticated && (
         <Button onClick={handleSignIn} disabled={authState.signingIn}>
-          Sign In with Farcaster
+          Sign In with Privy
         </Button>
       )}
-      {status === 'authenticated' && (
+      {authenticated && (
         <Button onClick={handleSignOut} disabled={authState.signingOut}>
           Sign out
         </Button>
       )}
 
       {/* Session Information */}
-      {authenticatedUser && (
+      {authenticated && user && (
         <div className="my-2 p-2 text-xs overflow-x-scroll bg-gray-100 dark:bg-gray-900 rounded-lg font-mono">
           <div className="font-semibold text-gray-500 dark:text-gray-300 mb-1">
             Authenticated User
           </div>
           <div className="whitespace-pre text-gray-700 dark:text-gray-200">
-            {JSON.stringify(authenticatedUser, null, 2)}
+            {JSON.stringify(user, null, 2)}
           </div>
+          {/* Display Farcaster details if available */}
+          {user.farcaster && (
+            <div className="mt-2">
+              <div className="font-semibold text-gray-500 dark:text-gray-300 mb-1">
+                Farcaster Details
+              </div>
+              <div className="whitespace-pre text-gray-700 dark:text-gray-200">
+                FID: {user.farcaster.fid}
+                {user.farcaster.username && <><br/>Username: {user.farcaster.username}</>}
+              </div>
+            </div>
+          )}
         </div>
       )}
 

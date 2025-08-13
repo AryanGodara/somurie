@@ -1,12 +1,12 @@
 "use client";
 
-import { useEffect } from "react";
-import { useMiniApp } from "@neynar/react";
+import { useEffect, useState } from "react";
+import { usePrivy } from "@privy-io/react-auth";
 import { Header } from "~/components/ui/Header";
 import { Footer } from "~/components/ui/Footer";
-import { HomeTab, ActionsTab, ContextTab, WalletTab } from "~/components/ui/tabs";
+import { HomeTab, ActionsTab, ContextTab } from "~/components/ui/tabs";
+import { PrivyWalletTab } from "~/components/ui/tabs/PrivyWalletTab";
 import { USE_WALLET } from "~/lib/constants";
-import { useNeynarUser } from "../hooks/useNeynarUser";
 
 // --- Types ---
 export enum Tab {
@@ -25,24 +25,23 @@ export interface AppProps {
  * 
  * This component orchestrates the overall mini app experience by:
  * - Managing tab navigation and state
- * - Handling Farcaster mini app initialization
+ * - Handling Privy authentication and wallet integration
  * - Coordinating wallet and context state
  * - Providing error handling and loading states
  * - Rendering the appropriate tab content based on user selection
  * 
- * The component integrates with the Neynar SDK for Farcaster functionality
- * and Wagmi for wallet management. It provides a complete mini app
- * experience with multiple tabs for different functionality areas.
+ * The component integrates with the Privy SDK for authentication and wallet functionality
+ * and provides a complete mini app experience with multiple tabs for different functionality areas.
  * 
  * Features:
  * - Tab-based navigation (Home, Actions, Context, Wallet)
- * - Farcaster mini app integration
+ * - Privy authentication and wallet integration
  * - Wallet connection management
  * - Error handling and display
  * - Loading states for async operations
  * 
  * @param props - Component props
- * @param props.title - Optional title for the mini app (defaults to "Neynar Starter Kit")
+ * @param props.title - Optional title for the mini app (defaults to "Privy App")
  * 
  * @example
  * ```tsx
@@ -50,41 +49,21 @@ export interface AppProps {
  * ```
  */
 export default function App(
-  { title }: AppProps = { title: "Neynar Starter Kit" }
+  { title }: AppProps = { title: "Privy App" }
 ) {
   // --- Hooks ---
-  const {
-    isSDKLoaded,
-    context,
-    setInitialTab,
-    setActiveTab,
-    currentTab,
-  } = useMiniApp();
-
-  // --- Neynar user hook ---
-  const { user: neynarUser } = useNeynarUser(context || undefined);
-
-  // --- Effects ---
-  /**
-   * Sets the initial tab to "home" when the SDK is loaded.
-   * 
-   * This effect ensures that users start on the home tab when they first
-   * load the mini app. It only runs when the SDK is fully loaded to
-   * prevent errors during initialization.
-   */
-  useEffect(() => {
-    if (isSDKLoaded) {
-      setInitialTab(Tab.Home);
-    }
-  }, [isSDKLoaded, setInitialTab]);
-
+  const { ready, authenticated, user } = usePrivy();
+  
+  // --- State ---
+  const [currentTab, setCurrentTab] = useState<Tab>(Tab.Home);
+  
   // --- Early Returns ---
-  if (!isSDKLoaded) {
+  if (!ready) {
     return (
       <div className="flex items-center justify-center h-screen">
         <div className="text-center">
           <div className="spinner h-8 w-8 mx-auto mb-4"></div>
-          <p>Loading SDK...</p>
+          <p>Loading...</p>
         </div>
       </div>
     );
@@ -92,16 +71,9 @@ export default function App(
 
   // --- Render ---
   return (
-    <div
-      style={{
-        paddingTop: context?.client.safeAreaInsets?.top ?? 0,
-        paddingBottom: context?.client.safeAreaInsets?.bottom ?? 0,
-        paddingLeft: context?.client.safeAreaInsets?.left ?? 0,
-        paddingRight: context?.client.safeAreaInsets?.right ?? 0,
-      }}
-    >
+    <div>
       {/* Header should be full width */}
-      <Header neynarUser={neynarUser} />
+      <Header user={user} />
 
       {/* Main content and footer should be centered */}
       <div className="container py-2 pb-20">
@@ -112,10 +84,14 @@ export default function App(
         {currentTab === Tab.Home && <HomeTab />}
         {currentTab === Tab.Actions && <ActionsTab />}
         {currentTab === Tab.Context && <ContextTab />}
-        {currentTab === Tab.Wallet && <WalletTab />}
+        {currentTab === Tab.Wallet && <PrivyWalletTab />}
 
         {/* Footer with navigation */}
-        <Footer activeTab={currentTab as Tab} setActiveTab={setActiveTab} showWallet={USE_WALLET} />
+        <Footer 
+          activeTab={currentTab} 
+          setActiveTab={(tab) => setCurrentTab(tab as Tab)} 
+          showWallet={USE_WALLET} 
+        />
       </div>
     </div>
   );

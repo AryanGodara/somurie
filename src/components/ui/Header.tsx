@@ -2,19 +2,34 @@
 
 import { useState } from "react";
 import { APP_NAME } from "~/lib/constants";
-import sdk from "@farcaster/miniapp-sdk";
-import { useMiniApp } from "@neynar/react";
+import { User } from "@privy-io/react-auth";
 
-type HeaderProps = {
-  neynarUser?: {
-    fid: number;
-    score: number;
-  } | null;
+// Define Farcaster account type for better type support
+type FarcasterAccount = {
+  type: "farcaster";
+  username?: string;
+  fid: string | number;
+  metadata?: {
+    profileImageUrl?: string;
+    displayName?: string;
+  }
 };
 
-export function Header({ neynarUser }: HeaderProps) {
-  const { context } = useMiniApp();
+export type HeaderProps = {
+  user?: User | null;
+};
+
+export function Header({ user }: HeaderProps) {
   const [isUserDropdownOpen, setIsUserDropdownOpen] = useState(false);
+  
+  // Extract Farcaster data from Privy user if available
+  const farcasterAccount = user?.linkedAccounts?.find(
+    account => account.type === "farcaster"
+  ) as FarcasterAccount | undefined;
+  
+  // Get profile image and display name
+  const profileImage = farcasterAccount?.metadata?.profileImageUrl;
+  const displayName = farcasterAccount?.metadata?.displayName;
 
   return (
     <div className="relative">
@@ -24,16 +39,17 @@ export function Header({ neynarUser }: HeaderProps) {
         <div className="text-lg font-light">
           Welcome to {APP_NAME}!
         </div>
-        {context?.user && (
+        {user && (
           <div 
             className="cursor-pointer"
             onClick={() => {
               setIsUserDropdownOpen(!isUserDropdownOpen);
             }}
           >
-            {context.user.pfpUrl && (
+            {/* Display profile image if available */}
+            {profileImage && (
               <img 
-                src={context.user.pfpUrl} 
+                src={profileImage} 
                 alt="Profile" 
                 className="w-10 h-10 rounded-full border-2 border-primary"
               />
@@ -41,28 +57,23 @@ export function Header({ neynarUser }: HeaderProps) {
           </div>
         )}
       </div>
-      {context?.user && (
+      {user && (
         <>      
           {isUserDropdownOpen && (
             <div className="absolute top-full right-0 z-50 w-fit mt-1 mx-4 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700">
               <div className="p-3 space-y-2">
                 <div className="text-right">
-                  <h3 
-                    className="font-bold text-sm hover:underline cursor-pointer inline-block"
-                    onClick={() => sdk.actions.viewProfile({ fid: context.user.fid })}
-                  >
-                    {context.user.displayName || context.user.username}
+                  <h3 className="font-bold text-sm inline-block">
+                    {farcasterAccount?.metadata?.displayName || (user.email?.address || "User")}
                   </h3>
-                  <p className="text-xs text-gray-600 dark:text-gray-400">
-                    @{context.user.username}
-                  </p>
-                  <p className="text-xs text-gray-500 dark:text-gray-500">
-                    FID: {context.user.fid}
-                  </p>
-                  {neynarUser && (
+                  
+                  {farcasterAccount && (
                     <>
+                      <p className="text-xs text-gray-600 dark:text-gray-400">
+                        @{farcasterAccount.username}
+                      </p>
                       <p className="text-xs text-gray-500 dark:text-gray-500">
-                        Neynar Score: {neynarUser.score}
+                        FID: {farcasterAccount.fid}
                       </p>
                     </>
                   )}
