@@ -160,9 +160,9 @@ type HomeProps = {
 export function Home({ setActiveTab }: HomeProps) {
   return (
     <div className="space-y-6 animate-fade-in">
-      <Card title="My First Mini App">
+      <Card title="Personal Notes Mini App">
         <p className="text-[var(--app-foreground-muted)] mb-4">
-          This is a minimalistic Mini App built with OnchainKit components.
+          Create, organize and manage your personal notes with this Mini App built with OnchainKit.
         </p>
         <Button
           onClick={() => setActiveTab("features")}
@@ -172,7 +172,7 @@ export function Home({ setActiveTab }: HomeProps) {
         </Button>
       </Card>
 
-      <TodoList />
+      <NotesApp />
 
       <TransactionCard />
     </div>
@@ -279,108 +279,169 @@ export function Icon({ name, size = "md", className = "" }: IconProps) {
   );
 }
 
-type Todo = {
+type Note = {
   id: number;
-  text: string;
-  completed: boolean;
+  title: string;
+  content: string;
+  category: string;
+  timestamp: string;
 }
 
-function TodoList() {
-  const [todos, setTodos] = useState<Todo[]>([
-    { id: 1, text: "Learn about MiniKit", completed: false },
-    { id: 2, text: "Build a Mini App", completed: true },
-    { id: 3, text: "Deploy to Base and go viral", completed: false },
+function NotesApp() {
+  const [notes, setNotes] = useState<Note[]>([
+    { 
+      id: 1, 
+      title: "Welcome to Notes", 
+      content: "This is your first note. Start adding more notes below!",
+      category: "General",
+      timestamp: new Date().toLocaleString() 
+    },
+    { 
+      id: 2, 
+      title: "Using OnchainKit", 
+      content: "Learn how to use OnchainKit for your blockchain applications.", 
+      category: "Tech",
+      timestamp: new Date().toLocaleString() 
+    },
   ]);
-  const [newTodo, setNewTodo] = useState("");
+  
+  const [newNoteTitle, setNewNoteTitle] = useState("");
+  const [newNoteContent, setNewNoteContent] = useState("");
+  const [noteCategory, setNoteCategory] = useState("General");
+  const [selectedCategory, setSelectedCategory] = useState("All");
+  const [showForm, setShowForm] = useState(false);
 
-  const addTodo = () => {
-    if (newTodo.trim() === "") return;
+  // Get unique categories for filter dropdown
+  const categories = ["All", ...new Set(notes.map(note => note.category))];
 
-    const newId =
-      todos.length > 0 ? Math.max(...todos.map((t) => t.id)) + 1 : 1;
-    setTodos([...todos, { id: newId, text: newTodo, completed: false }]);
-    setNewTodo("");
+  const addNote = () => {
+    if (newNoteTitle.trim() === "" || newNoteContent.trim() === "") return;
+
+    const newId = notes.length > 0 ? Math.max(...notes.map((n) => n.id)) + 1 : 1;
+    
+    setNotes([...notes, { 
+      id: newId, 
+      title: newNoteTitle, 
+      content: newNoteContent,
+      category: noteCategory,
+      timestamp: new Date().toLocaleString()
+    }]);
+    
+    setNewNoteTitle("");
+    setNewNoteContent("");
+    setShowForm(false);
   };
 
-  const toggleTodo = (id: number) => {
-    setTodos(
-      todos.map((todo) =>
-        todo.id === id ? { ...todo, completed: !todo.completed } : todo,
-      ),
-    );
+  const deleteNote = (id: number) => {
+    setNotes(notes.filter((note) => note.id !== id));
   };
 
-  const deleteTodo = (id: number) => {
-    setTodos(todos.filter((todo) => todo.id !== id));
-  };
-
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === "Enter") {
-      addTodo();
-    }
-  };
+  const filteredNotes = selectedCategory === "All" 
+    ? notes 
+    : notes.filter(note => note.category === selectedCategory);
 
   return (
-    <Card title="Get started">
+    <Card title="Personal Notes">
       <div className="space-y-4">
-        <div className="flex items-center space-x-2">
-          <input
-            type="text"
-            value={newTodo}
-            onChange={(e) => setNewTodo(e.target.value)}
-            onKeyDown={handleKeyDown}
-            placeholder="Add a new task..."
-            className="flex-1 px-3 py-2 bg-[var(--app-card-bg)] border border-[var(--app-card-border)] rounded-lg text-[var(--app-foreground)] placeholder-[var(--app-foreground-muted)] focus:outline-none focus:ring-1 focus:ring-[var(--app-accent)]"
-          />
-          <Button
-            variant="primary"
-            size="md"
-            onClick={addTodo}
-            icon={<Icon name="plus" size="sm" />}
-          >
-            Add
-          </Button>
+        {/* Category filter */}
+        <div className="flex justify-between items-center">
+          <div>
+            <label className="mr-2 text-[var(--app-foreground-muted)]">Filter:</label>
+            <select 
+              className="px-2 py-1 bg-[var(--app-card-bg)] border border-[var(--app-card-border)] rounded-lg text-[var(--app-foreground)]" 
+              value={selectedCategory}
+              onChange={(e) => setSelectedCategory(e.target.value)}
+            >
+              {categories.map(cat => (
+                <option key={cat} value={cat}>{cat}</option>
+              ))}
+            </select>
+          </div>
+          
+          {!showForm && (
+            <Button
+              variant="primary"
+              size="sm"
+              onClick={() => setShowForm(true)}
+              icon={<Icon name="plus" size="sm" />}
+            >
+              New Note
+            </Button>
+          )}
         </div>
 
-        <ul className="space-y-2">
-          {todos.map((todo) => (
-            <li key={todo.id} className="flex items-center justify-between">
-              <div className="flex items-center space-x-2">
-                <button
-                  type="button"
-                  id={`todo-${todo.id}`}
-                  onClick={() => toggleTodo(todo.id)}
-                  className={`w-5 h-5 rounded-full border flex items-center justify-center ${
-                    todo.completed
-                      ? "bg-[var(--app-accent)] border-[var(--app-accent)]"
-                      : "border-[var(--app-foreground-muted)] bg-transparent"
-                  }`}
-                >
-                  {todo.completed && (
-                    <Icon
-                      name="check"
-                      size="sm"
-                      className="text-[var(--app-background)]"
-                    />
-                  )}
-                </button>
-                <label
-                  htmlFor={`todo-${todo.id}`}
-                  className={`text-[var(--app-foreground-muted)] cursor-pointer ${todo.completed ? "line-through opacity-70" : ""}`}
-                >
-                  {todo.text}
-                </label>
-              </div>
-              <button
-                type="button"
-                onClick={() => deleteTodo(todo.id)}
-                className="text-[var(--app-foreground-muted)] hover:text-[var(--app-foreground)]"
+        {/* Add note form */}
+        {showForm && (
+          <div className="p-3 border border-[var(--app-card-border)] rounded-lg bg-[var(--app-card-bg)]">
+            <input
+              type="text"
+              value={newNoteTitle}
+              onChange={(e) => setNewNoteTitle(e.target.value)}
+              placeholder="Note title..."
+              className="w-full mb-2 px-3 py-2 bg-[var(--app-card-bg)] border border-[var(--app-card-border)] rounded-lg text-[var(--app-foreground)] placeholder-[var(--app-foreground-muted)] focus:outline-none focus:ring-1 focus:ring-[var(--app-accent)]"
+            />
+            <textarea
+              value={newNoteContent}
+              onChange={(e) => setNewNoteContent(e.target.value)}
+              placeholder="Note content..."
+              rows={3}
+              className="w-full mb-2 px-3 py-2 bg-[var(--app-card-bg)] border border-[var(--app-card-border)] rounded-lg text-[var(--app-foreground)] placeholder-[var(--app-foreground-muted)] focus:outline-none focus:ring-1 focus:ring-[var(--app-accent)]"
+            />
+            <div className="flex items-center mb-3">
+              <label className="mr-2 text-[var(--app-foreground-muted)]">Category:</label>
+              <input
+                type="text"
+                value={noteCategory}
+                onChange={(e) => setNoteCategory(e.target.value)}
+                placeholder="Category"
+                className="flex-1 px-3 py-1 bg-[var(--app-card-bg)] border border-[var(--app-card-border)] rounded-lg text-[var(--app-foreground)] placeholder-[var(--app-foreground-muted)] focus:outline-none focus:ring-1 focus:ring-[var(--app-accent)]"
+              />
+            </div>
+            <div className="flex space-x-2">
+              <Button
+                variant="primary"
+                size="sm"
+                onClick={addNote}
               >
-                ×
-              </button>
-            </li>
-          ))}
-        </ul>
+                Save Note
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setShowForm(false)}
+              >
+                Cancel
+              </Button>
+            </div>
+          </div>
+        )}
+
+        {/* Notes list */}
+        {filteredNotes.length === 0 ? (
+          <p className="text-center text-[var(--app-foreground-muted)]">No notes in this category</p>
+        ) : (
+          <div className="space-y-3">
+            {filteredNotes.map((note) => (
+              <div key={note.id} className="p-3 border border-[var(--app-card-border)] rounded-lg">
+                <div className="flex justify-between items-start mb-1">
+                  <h3 className="font-medium text-[var(--app-foreground)]">{note.title}</h3>
+                  <button
+                    type="button"
+                    onClick={() => deleteNote(note.id)}
+                    className="text-[var(--app-foreground-muted)] hover:text-[var(--app-foreground)]"
+                  >
+                    ×
+                  </button>
+                </div>
+                <p className="text-[var(--app-foreground-muted)] mb-2 text-sm">{note.content}</p>
+                <div className="flex justify-between text-xs text-[var(--app-foreground-muted)]">
+                  <span className="px-2 py-1 bg-[var(--app-gray)] rounded-full">{note.category}</span>
+                  <span>{note.timestamp}</span>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
     </Card>
   );
