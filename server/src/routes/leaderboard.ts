@@ -1,9 +1,25 @@
 import { Hono } from 'hono';
 import { z } from 'zod';
-import { zValidator } from '@hono/zod-validator';
-import { cacheManager } from '../services/cache';
 import { Creator } from '../models/creator';
 import { CreatorScore } from '../models/creatorScore';
+
+/**
+ * Type for leaderboard entry
+ */
+interface LeaderboardEntry {
+  fid: number;
+  username: string;
+  overallScore: number;
+  tier: number;
+  percentileRank: number;
+  followerCount: number;
+  powerBadge: boolean;
+}
+
+/**
+ * Type for leaderboard types
+ */
+type LeaderboardType = 'all' | 'weekly' | 'friends';
 
 // Create router
 const router = new Hono();
@@ -35,17 +51,8 @@ router.get('/:type', async (c) => {
       return c.json({ success: false, error: 'FID required for friends leaderboard' }, 400);
     }
     
-    // Check cache first
-    const cacheKey = `leaderboard:${type}:${fid || 'all'}`;
-    let leaderboard = await cacheManager.get(cacheKey);
-
-    if (!leaderboard) {
-      // Get fresh data
-      leaderboard = await getLeaderboard(type as any, fid);
-      
-      // Cache the result
-      await cacheManager.set(cacheKey, leaderboard, cacheManager.TTL.leaderboard);
-    }
+    // Get fresh data directly (no caching for MVP)
+    const leaderboard = await getLeaderboard(type as LeaderboardType, fid);
 
     return c.json({
       success: true,
@@ -63,7 +70,7 @@ router.get('/:type', async (c) => {
  * @param fid Optional Farcaster ID for friends leaderboard
  * @returns Array of leaderboard entries
  */
-async function getLeaderboard(type: 'all' | 'weekly' | 'friends', fid?: number): Promise<any[]> {
+async function getLeaderboard(type: LeaderboardType, fid?: number): Promise<LeaderboardEntry[]> {
   // Get today's date at midnight
   const today = new Date();
   today.setHours(0, 0, 0, 0);
@@ -132,7 +139,8 @@ async function getLeaderboard(type: 'all' | 'weekly' | 'friends', fid?: number):
   // Map creator info to scores
   return scores.map(score => {
     const creator = creators.find(c => c.fid === score.creatorFid);
-    return {
+    
+    const entry: LeaderboardEntry = {
       fid: score.creatorFid,
       username: creator?.username || `user_${score.creatorFid}`,
       overallScore: score.overallScore,
@@ -141,6 +149,8 @@ async function getLeaderboard(type: 'all' | 'weekly' | 'friends', fid?: number):
       followerCount: creator?.followerCount || 0,
       powerBadge: creator?.powerBadge || false
     };
+    
+    return entry;
   });
 }
 

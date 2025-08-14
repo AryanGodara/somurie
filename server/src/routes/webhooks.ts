@@ -1,6 +1,6 @@
 import { Hono } from 'hono';
-import { cacheManager } from '../services/cache';
 import { jobProcessor } from '../services/job';
+import { neynarService } from '../services/neynar';
 
 // Create router
 const router = new Hono();
@@ -29,21 +29,21 @@ router.post('/neynar', async (c) => {
       
       case 'follow.created':
       case 'follow.deleted': {
-        // Invalidate metrics cache for affected users
-        await cacheManager.invalidatePattern(`metrics:${payload.data.fid}:*`);
+        // Trigger metrics update for affected users
+        await jobProcessor.queueScoreCalculation(payload.data.fid, 10);
         
         // If a following relationship changed, also update the target
         if (payload.data.targetFid) {
-          await cacheManager.invalidatePattern(`metrics:${payload.data.targetFid}:*`);
+          await jobProcessor.queueScoreCalculation(payload.data.targetFid, 10);
         }
         break;
       }
       
       case 'reaction.created':
       case 'reaction.deleted': {
-        // If a cast received a reaction, invalidate metrics for the cast author
+        // If a cast received a reaction, update metrics for the cast author
         if (payload.data.castAuthorFid) {
-          await cacheManager.invalidatePattern(`metrics:${payload.data.castAuthorFid}:*`);
+          await jobProcessor.queueScoreCalculation(payload.data.castAuthorFid, 10);
         }
         break;
       }

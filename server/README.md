@@ -20,12 +20,7 @@ PORT=4000
 NODE_ENV=development
 
 # MongoDB
-MONGODB_URI=mongodb+srv://username:password@clustername.mongodb.net/somurie?retryWrites=true&w=majority
-
-# Redis
-REDIS_HOST=localhost
-REDIS_PORT=6379
-REDIS_PASSWORD=your_redis_password
+MONGODB_URI=mongodb+srv://aryangodara03:HttOSKgzH6T3x6ui@cluster0.8sf3vwr.mongodb.net/somurie?retryWrites=true&w=majority
 
 # Neynar
 NEYNAR_API_KEY=your_neynar_api_key
@@ -76,8 +71,7 @@ npm run dev
 
 ## Dependencies
 
-- MongoDB (Atlas): For data persistence
-- Redis: For caching and job processing
+- MongoDB (Atlas): For data persistence and leaderboard storage
 - Neynar API: For Farcaster data
 
 ## Development
@@ -86,3 +80,25 @@ npm run dev
 - Modular architecture with separation of concerns
 - Comprehensive error handling
 - Rate limiting for API calls
+
+## MongoDB Setup
+
+1. The application will automatically connect to the MongoDB cluster when started
+2. For a fresh setup, the application will create the necessary collections as needed
+3. To manually set up MongoDB collections, run the following commands:
+
+```bash
+# Start MongoDB shell (ensure you have mongosh installed)
+npx mongosh "mongodb+srv://aryangodara03:HttOSKgzH6T3x6ui@cluster0.8sf3vwr.mongodb.net/somurie"
+
+# In MongoDB shell, create necessary collections
+db.createCollection('creators')
+db.createCollection('creatorScores')
+db.createCollection('challenges')
+db.createCollection('waitlist')
+
+# To exit MongoDB shell
+exit
+```
+
+The application models will handle schema validation and indexing

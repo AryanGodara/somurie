@@ -39,7 +39,7 @@ export class LoanTermsCalculator {
    * @param score Creator score
    * @returns Loan terms
    */
-  calculateTerms(score: any): LoanTerms {
+  calculateTerms(score: { tier: number; components: Record<string, number> }): LoanTerms {
     const tierInfo = this.tierBenefits[score.tier] || this.tierBenefits[1];
     
     // Additional adjustments based on component scores

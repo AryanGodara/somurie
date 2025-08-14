@@ -4,7 +4,7 @@ import { nanoid } from 'nanoid';
 /**
  * Interface representing Creator Score components
  */
-export interface IScoreComponents {
+export interface IScoreComponents extends Record<string, number> {
   engagement: number;
   consistency: number;
   growth: number;

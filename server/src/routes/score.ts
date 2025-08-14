@@ -1,10 +1,9 @@
 import { Hono } from 'hono';
 import { z } from 'zod';
 import { zValidator } from '@hono/zod-validator';
-import { cacheManager } from '../services/cache';
 import { jobProcessor } from '../services/job';
 import { loanCalculator } from '../services/loan';
-import { CreatorScore } from '../models/creatorScore';
+import { CreatorScore, ICreatorScore } from '../models/creatorScore';
 import { Creator } from '../models/creator';
 
 // Create router
@@ -23,59 +22,52 @@ router.post('/calculate', zValidator('json', calculateScoreSchema), async (c) =>
   try {
     const { fid } = c.req.valid('json');
     
-    // Check cache first
-    const cacheKey = `score:${fid}:${new Date().toDateString()}`;
-    let score = await cacheManager.get(cacheKey);
-
-    if (!score) {
-      // Queue calculation job with priority 10
-      const jobId = await jobProcessor.queueScoreCalculation(fid, 10);
+    // Queue calculation job with priority 10
+    const jobId = await jobProcessor.queueScoreCalculation(fid, 10);
+    
+    // Maximum wait time for score calculation (10 seconds)
+    const MAX_WAIT_TIME = 10000;
+    const POLL_INTERVAL = 500;
+    const startTime = Date.now();
+    
+    // Wait for job to complete with timeout
+    const waitForCompletion = async (): Promise<ICreatorScore> => {
+      // Get today's date at midnight
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
       
-      // Wait for job to complete (with 10 second timeout)
-      const jobPromise = new Promise((resolve, reject) => {
-        let timeoutId: NodeJS.Timeout;
-        
-        // Set timeout to reject after 10 seconds
-        timeoutId = setTimeout(() => {
-          reject(new Error('Score calculation timed out'));
-        }, 10000);
-        
-        // Poll for job completion
-        const interval = setInterval(async () => {
-          try {
-            // Get score from database
-            const calculatedScore = await CreatorScore.findOne({
-              creatorFid: fid,
-              scoreDate: { $gte: new Date(new Date().setHours(0, 0, 0, 0)) }
-            }).populate('creatorFid');
-            
-            if (calculatedScore) {
-              clearTimeout(timeoutId);
-              clearInterval(interval);
-              resolve(calculatedScore);
-            }
-          } catch (error) {
-            clearTimeout(timeoutId);
-            clearInterval(interval);
-            reject(error);
-          }
-        }, 500);
-      });
-      
-      try {
-        score = await jobPromise;
-        
-        // Cache the result
-        await cacheManager.set(cacheKey, score, cacheManager.TTL.score);
-      } catch (error) {
-        // Return a 202 Accepted if the job is still processing
-        return c.json({
-          success: true,
-          processing: true,
-          message: 'Score calculation is in progress. Please try again in a few seconds.',
-          jobId
-        }, 202);
+      // Check if we've exceeded our timeout
+      if (Date.now() - startTime > MAX_WAIT_TIME) {
+        throw new Error('Score calculation timed out');
       }
+      
+      // Check for job completion
+      const calculatedScore = await CreatorScore.findOne({
+        creatorFid: fid,
+        scoreDate: { $gte: today }
+      }).populate('creatorFid');
+      
+      if (calculatedScore) {
+        return calculatedScore;
+      }
+      
+      // Wait before polling again
+      await new Promise(resolve => setTimeout(resolve, POLL_INTERVAL));
+      return waitForCompletion();
+    };
+    
+    let score: ICreatorScore;
+    try {
+      // Wait for score calculation to complete
+      score = await waitForCompletion();
+    } catch (error) {
+      // Return a 202 Accepted if the job is still processing
+      return c.json({
+        success: true,
+        processing: true,
+        message: 'Score calculation is in progress. Please try again in a few seconds.',
+        jobId
+      }, 202);
     }
 
     // Calculate loan terms

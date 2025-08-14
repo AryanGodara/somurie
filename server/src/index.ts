@@ -3,7 +3,7 @@ import { Hono } from 'hono';
 import { cors } from 'hono/cors';
 import { logger } from 'hono/logger';
 import { prettyJSON } from 'hono/pretty-json';
-import { connectToDatabase } from './config/db';
+import { connectToDatabase, disconnectFromDatabase } from './config/db';
 import { env } from './config/env';
 import { apiRouter } from './routes';
 
@@ -54,6 +54,12 @@ serve({
 // Handle graceful shutdown
 process.on('SIGTERM', async () => {
   console.log('SIGTERM signal received, shutting down gracefully');
-  // Close server connections here if needed
+  await disconnectFromDatabase().catch((err: Error) => console.error('Error during shutdown:', err));
+  process.exit(0);
+});
+
+process.on('SIGINT', async () => {
+  console.log('SIGINT signal received, shutting down gracefully');
+  await disconnectFromDatabase().catch((err: Error) => console.error('Error during shutdown:', err));
   process.exit(0);
 });

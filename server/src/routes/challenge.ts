@@ -4,6 +4,20 @@ import { zValidator } from '@hono/zod-validator';
 import { notificationService } from '../services/notification';
 import { Creator } from '../models/creator';
 
+/**
+ * Interface for challenge response data
+ */
+interface ChallengeResponse {
+  challenger: {
+    fid: number;
+    username: string;
+  };
+  target: {
+    fid: number;
+    username: string;
+  };
+}
+
 // Create router
 const router = new Hono();
 
@@ -52,19 +66,22 @@ router.post('/', zValidator('json', challengeSchema), async (c) => {
     // Send notification
     await notificationService.sendChallengeNotification(challengerFid, targetFid);
     
+    // Create properly typed response
+    const responseData: ChallengeResponse = {
+      challenger: {
+        fid: challenger.fid,
+        username: challenger.username
+      },
+      target: {
+        fid: target.fid,
+        username: target.username
+      }
+    };
+    
     return c.json({
       success: true,
       message: 'Challenge sent!',
-      data: {
-        challenger: {
-          fid: challenger.fid,
-          username: challenger.username
-        },
-        target: {
-          fid: target.fid,
-          username: target.username
-        }
-      }
+      data: responseData
     });
   } catch (error) {
     console.error('Challenge error:', error);

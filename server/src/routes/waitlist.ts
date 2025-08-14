@@ -4,6 +4,25 @@ import { zValidator } from '@hono/zod-validator';
 import { Waitlist } from '../models/waitlist';
 import { Creator } from '../models/creator';
 
+/**
+ * Interface for waitlist entry response
+ */
+interface WaitlistEntryResponse {
+  position: number;
+  message: string;
+}
+
+/**
+ * Interface for waitlist status response
+ */
+interface WaitlistStatusResponse {
+  onWaitlist: boolean;
+  position?: number;
+  joinedAt?: Date;
+  percentile?: number;
+  totalCount?: number;
+}
+
 // Create router
 const router = new Hono();
 
@@ -38,12 +57,14 @@ router.post('/', zValidator('json', waitlistSchema), async (c) => {
     // Check if already on waitlist
     const existingEntry = await Waitlist.findOne({ fid });
     if (existingEntry) {
+      const response: WaitlistEntryResponse = {
+        position: existingEntry.position,
+        message: 'You are already on the waitlist!'
+      };
+      
       return c.json({
         success: true,
-        data: {
-          position: existingEntry.position,
-          message: 'You are already on the waitlist!'
-        }
+        data: response
       });
     }
     
@@ -56,12 +77,14 @@ router.post('/', zValidator('json', waitlistSchema), async (c) => {
     
     await waitlist.save();
     
+    const response: WaitlistEntryResponse = {
+      position: waitlist.position,
+      message: 'Successfully joined waitlist!'
+    };
+    
     return c.json({
       success: true,
-      data: {
-        position: waitlist.position,
-        message: 'Successfully joined waitlist!'
-      }
+      data: response
     });
   } catch (error) {
     console.error('Waitlist error:', error);

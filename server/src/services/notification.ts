@@ -1,4 +1,4 @@
-import { NeynarAPIClient } from '@neynar/nodejs-sdk';
+import { NeynarAPIClient, Configuration } from '@neynar/nodejs-sdk';
 import { env } from '../config/env';
 import { Creator } from '../models/creator';
 import { CreatorScore } from '../models/creatorScore';
@@ -20,7 +20,10 @@ export class NotificationService {
   private client: NeynarAPIClient;
 
   constructor() {
-    this.client = new NeynarAPIClient(env.NEYNAR_API_KEY);
+    const config = new Configuration({
+      apiKey: env.NEYNAR_API_KEY
+    });
+    this.client = new NeynarAPIClient(config);
   }
 
   /**

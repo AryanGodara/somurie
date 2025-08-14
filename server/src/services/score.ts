@@ -3,6 +3,30 @@ import { CreatorScore } from '../models/creatorScore';
 import { CreatorMetrics } from './neynar';
 
 /**
+ * Interface for score component values
+ */
+interface ScoreComponents extends Record<string, number> {
+  engagement: number;
+  consistency: number;
+  growth: number;
+  quality: number;
+  network: number;
+}
+
+/**
+ * Interface for score calculation result
+ */
+export interface ScoreResult {
+  fid: number;
+  overallScore: number;
+  percentileRank: number;
+  tier: number;
+  components: Record<string, number>;
+  timestamp: Date;
+  validUntil: Date;
+}
+
+/**
  * Score Calculator Service
  * Handles calculation of creator scores based on metrics
  */
@@ -21,9 +45,9 @@ export class ScoreCalculator {
    * @param metrics Creator metrics from Neynar
    * @returns Complete creator score
    */
-  async calculateScore(metrics: CreatorMetrics): Promise<any> {
+  async calculateScore(metrics: CreatorMetrics): Promise<ScoreResult> {
     // Calculate component scores
-    const components = {
+    const components: ScoreComponents = {
       engagement: this.normalizeEngagement(metrics.engagementRate),
       consistency: this.normalizeConsistency(metrics.postingFrequency),
       growth: this.normalizeGrowth(metrics.growthRate, metrics.followerCount),
@@ -36,7 +60,11 @@ export class ScoreCalculator {
 
     // Calculate weighted score
     const rawScore = Object.entries(adjusted).reduce(
-      (sum, [key, value]) => sum + value * this.weights[key as keyof typeof this.weights],
+      (sum, [key, value]) => {
+        // Only use keys that exist in weights
+        const weightKey = key as keyof typeof this.weights;
+        return sum + value * (this.weights[weightKey] || 0);
+      },
       0
     );
 
@@ -116,10 +144,10 @@ export class ScoreCalculator {
    * @returns Adjusted component scores
    */
   private applyDiminishingReturns(
-    components: any,
+    components: Record<string, number>,
     metrics: CreatorMetrics
-  ): any {
-    const adjusted = { ...components };
+  ): Record<string, number> {
+    const adjusted: Record<string, number> = { ...components };
 
     // Penalize excessive posting
     if (metrics.postingFrequency > 10) {

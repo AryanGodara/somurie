@@ -1,7 +1,17 @@
-import { NeynarAPIClient } from '@neynar/nodejs-sdk';
-import { CacheManager } from './cache';
+import { Configuration, NeynarAPIClient } from '@neynar/nodejs-sdk';
 import { RateLimiter } from '../utils/rateLimiter';
 import { env } from '../config/env';
+
+/**
+ * Interface for Neynar API user profile response
+ */
+interface NeynarUserProfile {
+  username: string;
+  follower_count: number;
+  following_count: number;
+  power_badge?: boolean;
+  fid_score?: number;
+}
 
 /**
  * Interface for Cast metrics
@@ -12,7 +22,8 @@ export interface CastMetrics {
   likes: number;
   recasts: number;
   replies: number;
-  impressions: number;
+  // Note: impressions no longer available in Neynar API
+  // Engagement will be calculated based on likes, recasts and replies only
 }
 
 /**
@@ -39,17 +50,60 @@ export interface CreatorMetrics {
  */
 export class NeynarService {
   private client: NeynarAPIClient;
-  private cache: CacheManager;
   private rateLimiter: RateLimiter;
+  
+  // In-memory cache for MVP (no Redis dependency)
+  private memoryCache: Map<string, { value: any; expiry: number }> = new Map();
 
-  constructor(cache: CacheManager) {
+  constructor() {
     // Initialize Neynar client with API key
-    this.client = new NeynarAPIClient(env.NEYNAR_API_KEY);
-    this.cache = cache;
+    const config = new Configuration({ apiKey: env.NEYNAR_API_KEY });
+    this.client = new NeynarAPIClient(config);
     // 300 RPM limit for Neynar free tier
     this.rateLimiter = new RateLimiter(300);
   }
 
+  /**
+   * Simple in-memory cache methods for MVP
+   */
+  private getCachedValue<T>(key: string): T | null {
+    const item = this.memoryCache.get(key);
+    
+    if (!item) return null;
+    
+    // Check if item has expired
+    if (item.expiry < Date.now()) {
+      this.memoryCache.delete(key);
+      return null;
+    }
+    
+    return item.value as T;
+  }
+  
+  private setCachedValue(key: string, value: any, ttlSeconds: number): void {
+    this.memoryCache.set(key, {
+      value,
+      expiry: Date.now() + (ttlSeconds * 1000)
+    });
+  }
+  
+  private deleteCachedValue(key: string): void {
+    this.memoryCache.delete(key);
+  }
+  
+  /**
+   * Delete cached values by pattern (simple implementation for MVP)
+   */
+  private invalidatePattern(pattern: string): void {
+    const regex = new RegExp(pattern.replace('*', '.*'));
+    
+    for (const key of this.memoryCache.keys()) {
+      if (regex.test(key)) {
+        this.memoryCache.delete(key);
+      }
+    }
+  }
+  
   /**
    * Get metrics for a creator
    * @param fid Farcaster ID
@@ -60,14 +114,14 @@ export class NeynarService {
     const cacheKey = `metrics:${fid}:${days}`;
     
     // Check cache first
-    const cached = await this.cache.get<CreatorMetrics>(cacheKey);
+    const cached = this.getCachedValue<CreatorMetrics>(cacheKey);
     if (cached) return cached;
 
     // Respect rate limits
     await this.rateLimiter.wait();
 
     // Fetch user profile
-    const user = await this.client.fetchBulkUsers([fid]);
+    const user = await this.client.fetchBulkUsers({ fids: [fid] });
     const profile = user.users[0];
 
     // Fetch recent casts with pagination
@@ -80,7 +134,7 @@ export class NeynarService {
       followerCount: profile.follower_count,
       followingCount: profile.following_count,
       powerBadge: profile.power_badge || false,
-      neynarScore: profile.fid_score || 0,
+      neynarScore: profile.score || 0,
       casts: casts,
       engagementRate: this.calculateEngagementRate(casts),
       postingFrequency: casts.length / days,
@@ -89,8 +143,8 @@ export class NeynarService {
       networkScore: this.calculateNetworkScore(profile),
     };
 
-    // Cache the result
-    await this.cache.set(cacheKey, metrics, this.cache.TTL.metrics);
+    // Cache the result (30 minutes TTL for MVP)
+    this.setCachedValue(cacheKey, metrics, 30 * 60);
     return metrics;
   }
 
@@ -109,7 +163,8 @@ export class NeynarService {
     for (let i = 0; i < 5; i++) {
       await this.rateLimiter.wait();
       
-      const response = await this.client.fetchCastsForUser(fid, {
+      const response = await this.client.fetchCastsForUser({
+        fid,
         limit: 100,
         cursor,
       });
@@ -126,11 +181,10 @@ export class NeynarService {
           likes: cast.reactions?.likes_count || 0,
           recasts: cast.reactions?.recasts_count || 0,
           replies: cast.replies?.count || 0,
-          impressions: cast.impressions_count || 0,
         });
       }
 
-      cursor = response.next?.cursor;
+      cursor = response.next.cursor ?? undefined;
       if (!cursor) break;
     }
 
@@ -167,7 +221,7 @@ export class NeynarService {
    * @param profile User profile data
    * @returns Network score (0-100)
    */
-  private calculateNetworkScore(profile: any): number {
+  private calculateNetworkScore(profile: { follower_count: number; following_count: number; power_badge?: boolean; fid_score?: number }): number {
     const followerRatio = profile.follower_count / Math.max(profile.following_count, 1);
     const powerBadgeBonus = profile.power_badge ? 20 : 0;
     const neynarScoreBonus = (profile.fid_score || 0) * 10;
@@ -177,4 +231,4 @@ export class NeynarService {
 }
 
 // Export singleton instance
-export const neynarService = new NeynarService(CacheManager);
+export const neynarService = new NeynarService();

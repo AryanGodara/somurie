@@ -1,60 +1,53 @@
 import mongoose from 'mongoose';
 import { env } from './env';
 
-// Remove mongoose deprecation warnings
+// Configure mongoose options
 mongoose.set('strictQuery', false);
 
-// Connection options
 const options = {
-  autoIndex: true, // Build indexes
-  maxPoolSize: 10, // Maintain up to 10 socket connections
-  serverSelectionTimeoutMS: 5000, // Keep trying to send operations for 5 seconds
-  socketTimeoutMS: 45000, // Close sockets after 45 seconds of inactivity
+  autoIndex: true,
+  maxPoolSize: 10,
+  serverSelectionTimeoutMS: 5000,
+  socketTimeoutMS: 45000,
 };
 
 /**
- * Connect to MongoDB
+ * Connect to MongoDB database
  */
 export async function connectToDatabase(): Promise<void> {
   try {
     if (mongoose.connection.readyState === 1) {
-      console.log('🟢 MongoDB is already connected');
+      console.log('🟢 MongoDB already connected');
       return;
     }
     
     await mongoose.connect(env.MONGODB_URI, options);
     console.log('🟢 MongoDB connected successfully');
+    
+    // Set up event listeners
+    mongoose.connection.on('error', (error) => {
+      console.error('❌ MongoDB connection error:', error);
+    });
+    
+    mongoose.connection.on('disconnected', () => {
+      console.log('🔴 MongoDB disconnected');
+    });
+    
   } catch (error) {
-    console.error('❌ MongoDB connection error:', error);
-    process.exit(1);
+    console.error('❌ MongoDB connection error:', error instanceof Error ? error.message : String(error));
+    throw error; // Let the caller handle process exit if needed
   }
 }
 
 /**
- * Disconnect from MongoDB
+ * Disconnect from MongoDB database
  */
 export async function disconnectFromDatabase(): Promise<void> {
   try {
     await mongoose.disconnect();
     console.log('🟠 MongoDB disconnected');
   } catch (error) {
-    console.error('❌ Failed to disconnect from MongoDB:', error);
-    process.exit(1);
+    console.error('❌ Failed to disconnect from MongoDB:', error instanceof Error ? error.message : String(error));
+    throw error; // Let the caller handle process exit if needed
   }
 }
-
-// Listen for connection errors after initial connection
-mongoose.connection.on('error', (error) => {
-  console.error('❌ MongoDB connection error:', error);
-});
-
-// Listen for disconnection
-mongoose.connection.on('disconnected', () => {
-  console.log('🔴 MongoDB disconnected');
-});
-
-// Listen for process termination and close the connection
-process.on('SIGINT', async () => {
-  await disconnectFromDatabase();
-  process.exit(0);
-});

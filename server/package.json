@@ -7,13 +7,21 @@
     "dev": "npx tsx watch src/index.ts",
     "build": "tsc",
     "start": "node dist/index.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "lint": "npx @biomejs/biome check ./src --error-on-warnings",
+    "format": "npx @biomejs/biome check ./src --fix --unsafe --error-on-warnings"
   },
   "dependencies": {
+    "@hono/node-server": "^1.8.0",
+    "@hono/zod-validator": "^0.7.2",
+    "@neynar/nodejs-sdk": "^3.34.0",
+    "dotenv": "^16.3.1",
     "hono": "^4.1.0",
-    "@hono/node-server": "^1.8.0"
+    "mongoose": "^8.0.0",
+    "zod": "^3.22.4"
   },
   "devDependencies": {
+    "@biomejs/biome": "^1.6.0",
     "@types/node": "^20.11.0",
     "tsx": "^4.7.0",
     "typescript": "^5.4.2"
