@@ -164,12 +164,21 @@ export function Home({ setActiveTab }: HomeProps) {
         <p className="text-[var(--app-foreground-muted)] mb-4">
           Create, organize and manage your personal notes with this Mini App built with OnchainKit.
         </p>
-        <Button
-          onClick={() => window.location.href = "/blockchain-features"}
-          icon={<Icon name="arrow-right" size="sm" />}
-        >
-          Explore Features
-        </Button>
+        <div className="flex space-x-2">
+          <Button
+            onClick={() => window.location.href = "/farcaster-metrics"}
+            variant="secondary"
+            icon={<Icon name="star" size="sm" />}
+          >
+            Farcaster Metrics
+          </Button>
+          <Button
+            onClick={() => window.location.href = "/blockchain-features"}
+            icon={<Icon name="arrow-right" size="sm" />}
+          >
+            Explore Features
+          </Button>
+        </div>
       </Card>
 
       <NotesApp />
