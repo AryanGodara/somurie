@@ -49,15 +49,13 @@ export class JobProcessor {
 
     const timeUntilNextRun = nextRun.getTime() - now.getTime()
 
-    // Schedule the daily job
-    this.dailyJobTimeout = setTimeout(() => {
+    // First, schedule a one-time job for the next 2 AM
+    setTimeout(() => {
+      // Run the job immediately when we reach the target time
       this.runDailyJob()
-
-      // Set up recurring daily jobs
-      this.dailyJobTimeout = setInterval(
-        this.runDailyJob.bind(this),
-        24 * 60 * 60 * 1000,
-      )
+      
+      // Then set up the recurring daily job
+      setInterval(this.runDailyJob.bind(this), 24 * 60 * 60 * 1000)
     }, timeUntilNextRun)
 
     console.log(`🗓️ Scheduled daily job to run at ${nextRun.toLocaleString()}`)

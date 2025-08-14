@@ -20,9 +20,9 @@ export async function generateMetadata(): Promise<Metadata> {
         version: "next",
         imageUrl: process.env.NEXT_PUBLIC_APP_HERO_IMAGE,
         button: {
-          title: `Launch ${process.env.NEXT_PUBLIC_ONCHAINKIT_PROJECT_NAME}`,
+          title: `Start`,
           action: {
-            type: "launch_frame",
+            type: "launch_miniapp",
             name: process.env.NEXT_PUBLIC_ONCHAINKIT_PROJECT_NAME,
             url: URL,
             splashImageUrl: process.env.NEXT_PUBLIC_SPLASH_IMAGE,

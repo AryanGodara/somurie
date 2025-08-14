@@ -1,0 +1,12 @@
+{
+  "miniapp": {
+    "version": "1",
+    "name": "Somurie",
+    "iconUrl": "/favicon.ico",
+    "homeUrl": "https://somurie.vercel.app/",
+    "imageUrl": "/opengraph-image.png",
+    "buttonTitle": "Open App",
+    "splashImageUrl": "/splash.png",
+    "splashBackgroundColor": "#f5f0ec"
+  }
+}

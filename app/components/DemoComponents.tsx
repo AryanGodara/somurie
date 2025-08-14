@@ -15,7 +15,7 @@ import {
   TransactionStatusLabel,
   TransactionStatus,
 } from "@coinbase/onchainkit/transaction";
-import { useNotification } from "@coinbase/onchainkit/minikit";
+// Removed MiniKit dependency
 
 type ButtonProps = {
   children: ReactNode;
@@ -469,7 +469,12 @@ function TransactionCard() {
       ]
     : [], [address]);
 
-  const sendNotification = useNotification();
+  // Custom notification function for Farcaster
+  const sendNotification = useCallback(async ({ title, body }: { title: string, body: string }) => {
+    console.log(`Notification: ${title} - ${body}`);
+    // In a real implementation, you would use Neynar's notification system
+    // This is a placeholder until we implement the actual Neynar notification
+  }, []);
 
   const handleSuccess = useCallback(async (response: TransactionResponse) => {
     const transactionHash = response.transactionReceipts[0].transactionHash;
@@ -478,7 +483,7 @@ function TransactionCard() {
 
     await sendNotification({
       title: "Congratulations!",
-      body: `You sent your a transaction, ${transactionHash}!`,
+      body: `You sent a transaction, ${transactionHash}!`,
     });
   }, [sendNotification]);
 
