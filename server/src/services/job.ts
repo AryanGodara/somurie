@@ -1,21 +1,21 @@
-import { neynarService, CreatorMetrics } from './neynar';
-import { scoreCalculator, ScoreResult } from './score';
-import { Creator } from '../models/creator';
-import { CreatorScore, ICreatorScore, IScoreComponents } from '../models/creatorScore';
-import { notificationService } from './notification';
+import { Creator } from '../models/creator'
+import { CreatorScore, type IScoreComponents } from '../models/creatorScore'
+import { type CreatorMetrics, neynarService } from './neynar'
+import { notificationService } from './notification'
+import { type ScoreResult, scoreCalculator } from './score'
 
 /**
  * Interface for score calculation job data
  */
 interface ScoreJobData {
-  fid: number;
-  days?: number;
-  type?: string;
-  status: 'queued' | 'processing' | 'completed' | 'failed';
-  priority: number;
-  createdAt: Date;
-  result?: ScoreResult;
-  error?: string;
+  fid: number
+  days?: number
+  type?: string
+  status: 'queued' | 'processing' | 'completed' | 'failed'
+  priority: number
+  createdAt: Date
+  result?: ScoreResult
+  error?: string
 }
 
 /**
@@ -23,15 +23,14 @@ interface ScoreJobData {
  * Handles background jobs using in-memory queue (no Redis dependency)
  */
 export class JobProcessor {
-  private jobs: Map<string, ScoreJobData> = new Map();
-  private isProcessing: boolean = false;
-  private dailyJobTimeout: NodeJS.Timeout | null = null;
-  
+  private jobs: Map<string, ScoreJobData> = new Map()
+  private isProcessing: boolean = false
+
   constructor() {
     // Schedule recurring jobs
-    this.scheduleJobs();
-    
-    console.log('🟢 Job processor initialized (in-memory mode)');
+    this.scheduleJobs()
+
+    console.log('🟢 Job processor initialized (in-memory mode)')
   }
 
   /**
@@ -39,46 +38,49 @@ export class JobProcessor {
    */
   private scheduleJobs(): void {
     // Calculate time until next 2 AM
-    const now = new Date();
-    const nextRun = new Date();
-    nextRun.setHours(2, 0, 0, 0);
-    
+    const now = new Date()
+    const nextRun = new Date()
+    nextRun.setHours(2, 0, 0, 0)
+
     // If it's already past 2 AM, schedule for tomorrow
     if (now.getHours() >= 2) {
-      nextRun.setDate(nextRun.getDate() + 1);
+      nextRun.setDate(nextRun.getDate() + 1)
     }
-    
-    const timeUntilNextRun = nextRun.getTime() - now.getTime();
-    
+
+    const timeUntilNextRun = nextRun.getTime() - now.getTime()
+
     // Schedule the daily job
     this.dailyJobTimeout = setTimeout(() => {
-      this.runDailyJob();
-      
+      this.runDailyJob()
+
       // Set up recurring daily jobs
-      this.dailyJobTimeout = setInterval(this.runDailyJob.bind(this), 24 * 60 * 60 * 1000);
-    }, timeUntilNextRun);
-    
-    console.log(`🗓️ Scheduled daily job to run at ${nextRun.toLocaleString()}`);
+      this.dailyJobTimeout = setInterval(
+        this.runDailyJob.bind(this),
+        24 * 60 * 60 * 1000,
+      )
+    }, timeUntilNextRun)
+
+    console.log(`🗓️ Scheduled daily job to run at ${nextRun.toLocaleString()}`)
   }
-  
+
   /**
    * Run the daily batch job
    */
   private async runDailyJob(): Promise<void> {
-    console.log('⚙️ Running daily batch job');
-    
+    console.log('⚙️ Running daily batch job')
+
     // For MVP, we can just queue a job for each creator
     // In a production system, we might want to handle this differently
     try {
-      const creators = await Creator.find().select('fid');
-      
+      const creators = await Creator.find().select('fid')
+
       for (const creator of creators) {
-        await this.queueScoreCalculation(creator.fid, 0);
+        await this.queueScoreCalculation(creator.fid, 0)
       }
-      
-      console.log(`✅ Queued batch jobs for ${creators.length} creators`);
+
+      console.log(`✅ Queued batch jobs for ${creators.length} creators`)
     } catch (error) {
-      console.error('❌ Daily batch job failed:', error);
+      console.error('❌ Daily batch job failed:', error)
     }
   }
 
@@ -90,87 +92,87 @@ export class JobProcessor {
    */
   async queueScoreCalculation(fid: number, priority = 0): Promise<string> {
     // Generate a unique job ID
-    const jobId = `job-${Date.now()}-${fid}`;
-    
+    const jobId = `job-${Date.now()}-${fid}`
+
     // Store job data
-    this.jobs.set(jobId, { 
-      fid, 
+    this.jobs.set(jobId, {
+      fid,
       days: 45,
       status: 'queued',
       priority,
-      createdAt: new Date()
-    });
-    
-    console.log(`🔄 Queued job ${jobId} for FID ${fid}`);
-    
+      createdAt: new Date(),
+    })
+
+    console.log(`🔄 Queued job ${jobId} for FID ${fid}`)
+
     // Start processing if not already running
     if (!this.isProcessing) {
-      this.processNextJob();
+      this.processNextJob()
     }
-    
-    return jobId;
+
+    return jobId
   }
-  
+
   /**
    * Process the next job in the queue
    */
   private async processNextJob(): Promise<void> {
-    this.isProcessing = true;
-    
+    this.isProcessing = true
+
     // Find highest priority job
-    let nextJobId: string | null = null;
-    let highestPriority = -1;
-    
+    let nextJobId: string | null = null
+    let highestPriority = -1
+
     for (const [id, job] of this.jobs.entries()) {
       if (job.status === 'queued' && job.priority > highestPriority) {
-        nextJobId = id;
-        highestPriority = job.priority;
+        nextJobId = id
+        highestPriority = job.priority
       }
     }
-    
+
     if (nextJobId) {
-      const job = this.jobs.get(nextJobId)!;
-      
+      const job = this.jobs.get(nextJobId)!
+
       // Update status
-      job.status = 'processing';
-      this.jobs.set(nextJobId, job);
-      
-      console.log(`⚙️ Processing job: ${nextJobId}`, job);
-      
+      job.status = 'processing'
+      this.jobs.set(nextJobId, job)
+
+      console.log(`⚙️ Processing job: ${nextJobId}`, job)
+
       try {
         // Get metrics from Neynar
-        const metrics = await neynarService.getUserMetrics(job.fid, job.days);
-        
+        const metrics = await neynarService.getUserMetrics(job.fid, job.days)
+
         // Calculate score
-        const score = await scoreCalculator.calculateScore(metrics);
-        
+        const score = await scoreCalculator.calculateScore(metrics)
+
         // Save to database
-        await this.saveScore(score);
-        
+        await this.saveScore(score)
+
         // Update creator profile
-        await this.updateCreatorProfile(metrics);
-        
+        await this.updateCreatorProfile(metrics)
+
         // Send notifications
-        await notificationService.sendScoreUpdateNotification(job.fid, score);
-        
+        await notificationService.sendScoreUpdateNotification(job.fid, score)
+
         // Mark as complete
-        job.status = 'completed';
-        job.result = score;
-        this.jobs.set(nextJobId, job);
-        
-        console.log(`✅ Job completed: ${nextJobId}`);
+        job.status = 'completed'
+        job.result = score
+        this.jobs.set(nextJobId, job)
+
+        console.log(`✅ Job completed: ${nextJobId}`)
       } catch (error) {
-        console.error(`❌ Job failed: ${nextJobId}`, error);
-        job.status = 'failed';
-        job.error = error instanceof Error ? error.message : String(error);
-        this.jobs.set(nextJobId, job);
+        console.error(`❌ Job failed: ${nextJobId}`, error)
+        job.status = 'failed'
+        job.error = error instanceof Error ? error.message : String(error)
+        this.jobs.set(nextJobId, job)
       }
-      
+
       // Process next job
-      setTimeout(() => this.processNextJob(), 0);
+      setTimeout(() => this.processNextJob(), 0)
     } else {
-      this.isProcessing = false;
-      console.log('✅ Queue empty, processing paused');
+      this.isProcessing = false
+      console.log('✅ Queue empty, processing paused')
     }
   }
 
@@ -187,31 +189,31 @@ export class JobProcessor {
       growth: score.components.growth || 0,
       quality: score.components.quality || 0,
       network: score.components.network || 0,
-      ...score.components // Include any other components that might be in the record
-    };
+      ...score.components, // Include any other components that might be in the record
+    }
     // Get today's date at midnight
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    
+    const today = new Date()
+    today.setHours(0, 0, 0, 0)
+
     // Calculate valid until date (tomorrow)
-    const tomorrow = new Date(today);
-    tomorrow.setDate(tomorrow.getDate() + 1);
-    
+    const tomorrow = new Date(today)
+    tomorrow.setDate(tomorrow.getDate() + 1)
+
     // Find existing score or create new one
     const existingScore = await CreatorScore.findOne({
       creatorFid: score.fid,
-      scoreDate: { $gte: today }
-    });
-    
+      scoreDate: { $gte: today },
+    })
+
     if (existingScore) {
       // Update existing score
-      existingScore.overallScore = score.overallScore;
-      existingScore.percentileRank = score.percentileRank;
-      existingScore.tier = score.tier;
-      existingScore.components = componentData;
-      existingScore.validUntil = score.validUntil;
-      await existingScore.save();
-      return existingScore.id;
+      existingScore.overallScore = score.overallScore
+      existingScore.percentileRank = score.percentileRank
+      existingScore.tier = score.tier
+      existingScore.components = componentData
+      existingScore.validUntil = score.validUntil
+      await existingScore.save()
+      return existingScore.id
     } else {
       // Create new score
       const newScore = new CreatorScore({
@@ -221,10 +223,10 @@ export class JobProcessor {
         tier: score.tier,
         components: componentData,
         scoreDate: today,
-        validUntil: tomorrow
-      });
-      await newScore.save();
-      return newScore.id;
+        validUntil: tomorrow,
+      })
+      await newScore.save()
+      return newScore.id
     }
   }
 
@@ -239,16 +241,15 @@ export class JobProcessor {
       followerCount: metrics.followerCount,
       followingCount: metrics.followingCount,
       powerBadge: metrics.powerBadge,
-      neynarScore: metrics.neynarScore
-    };
-    
-    await Creator.findOneAndUpdate(
-      { fid: metrics.fid },
-      creatorData,
-      { upsert: true, new: true }
-    );
+      neynarScore: metrics.neynarScore,
+    }
+
+    await Creator.findOneAndUpdate({ fid: metrics.fid }, creatorData, {
+      upsert: true,
+      new: true,
+    })
   }
 }
 
 // Export singleton instance
-export const jobProcessor = new JobProcessor();
+export const jobProcessor = new JobProcessor()
