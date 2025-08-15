@@ -1,8 +1,7 @@
-# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
-
 # dependencies
 /node_modules
 /server/node_modules
+/contracts/node_modules
 /.pnp
 .pnp.js
 .yarn/install-state.gz
@@ -36,3 +35,20 @@ server/.env
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Contract outputs
+contracts/cache/
+contracts/out/
+contracts/lib/
+contracts/broadcast/
+contracts/docs/
+# Accidental deployments
+contracts/deployments/unknown/
+# Logs
+anvil.log
+
+# Ignores development broadcast logs
+contracts/broadcast
+contracts/.password.local
+contracts/.password.test
+contracts/.password.main
