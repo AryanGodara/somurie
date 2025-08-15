@@ -1,7 +1,9 @@
-import { Configuration, NeynarAPIClient } from '@neynar/nodejs-sdk'
 import { env } from '../config/env'
 import { Creator } from '../models/creator'
 import { CreatorScore } from '../models/creatorScore'
+
+// Neynar API base URL
+const _NEYNAR_API_BASE = 'https://api.neynar.com/v2/farcaster'
 
 /**
  * Interface for notification payload
@@ -17,11 +19,10 @@ interface NotificationPayload {
  * Handles sending notifications to users via Neynar
  */
 export class NotificationService {
+  private apiKey: string
+
   constructor() {
-    const config = new Configuration({
-      apiKey: env.NEYNAR_API_KEY,
-    })
-    this.client = new NeynarAPIClient(config)
+    this.apiKey = env.NEYNAR_API_KEY
   }
 
   /**
@@ -85,12 +86,19 @@ export class NotificationService {
     notification: NotificationPayload,
   ): Promise<void> {
     try {
-      // In a production environment, this would integrate with Neynar's notification API
-      // For now, we'll just log the notification
+      // In a production environment with full notification support, we would call the notification API
+      // For now, we'll just log the notification and prepare for direct API integration
       console.log(`[NOTIFICATION] To FID ${fid}:`, notification)
 
-      // TODO: Implement actual notification sending when Neynar supports it
-      // This would use their webhook/notification system
+      // When Neynar's notification API becomes available, we would implement it like this:
+      // await this.makeApiRequest('/notifications/send', {}, 'POST', {
+      //   recipient_fid: fid,
+      //   title: notification.title,
+      //   body: notification.body,
+      //   url: notification.actionUrl
+      // });
+
+      // For now, just simulate the notification
     } catch (error) {
       console.error(`Failed to send notification to FID ${fid}:`, error)
     }
@@ -121,6 +129,14 @@ export class NotificationService {
       if (!userScore) return []
 
       // Find users with similar scores
+      const _options: RequestInit = {
+        method: 'GET',
+        headers: {
+          'x-api-key': this.apiKey,
+          Accept: 'application/json',
+          'Content-Type': 'application/json',
+        },
+      }
       const similarScores = await CreatorScore.find({
         creatorFid: { $ne: fid },
         scoreDate: { $gte: today },

@@ -4,26 +4,33 @@
   "description": "Hono-based API server for Farcaster metrics",
   "main": "dist/index.js",
   "scripts": {
-    "dev": "npx tsx watch src/index.ts",
-    "build": "tsc",
+    "dev": "nodemon --watch 'src/**/*.ts' --exec ts-node src/index.ts",
+    "build": "rm -rf dist && tsc",
     "start": "node dist/index.js",
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "seed": "ts-node scripts/seed-test-data.ts",
+    "test": "vitest",
     "lint": "npx @biomejs/biome check ./src --error-on-warnings",
     "format": "npx @biomejs/biome check ./src --fix --unsafe --error-on-warnings"
   },
   "dependencies": {
     "@hono/node-server": "^1.8.0",
     "@hono/zod-validator": "^0.7.2",
-    "@neynar/nodejs-sdk": "^3.34.0",
+    "@types/node-fetch": "^2.6.13",
     "dotenv": "^16.3.1",
     "hono": "^4.1.0",
     "mongoose": "^8.0.0",
+    "nanoid": "^3.3.7",
+    "node-fetch": "^2.7.0",
     "zod": "^3.22.4"
   },
   "devDependencies": {
     "@biomejs/biome": "^2.1.0",
     "@types/node": "^20.11.0",
+    "msw": "^2.10.5",
+    "nodemon": "^3.1.10",
+    "ts-node": "^10.9.2",
     "tsx": "^4.7.0",
-    "typescript": "^5.4.2"
+    "typescript": "^5.4.2",
+    "vitest": "^3.2.4"
   }
 }

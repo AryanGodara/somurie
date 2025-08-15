@@ -27,6 +27,9 @@ export default function App() {
           <div>
             {isSDKLoaded ? (
               <div className="text-sm font-medium">
+                {context!.user?.username}<br/>
+                {context!.user?.displayName}<br/>
+                {context!.user?.fid}<br/>
                 Connected to Farcaster
               </div>
             ) : (

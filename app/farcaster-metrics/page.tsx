@@ -27,18 +27,6 @@ export default function FarcasterMetricsPage() {
 
         <div className="space-y-8">
           <FarcasterMetrics />
-          
-          <div className="p-4 border rounded-lg bg-[var(--app-background)] shadow-sm">
-            <h2 className="text-lg font-semibold mb-4">About This Feature</h2>
-            <p className="text-[var(--app-foreground-muted)]">
-              This dashboard connects to our Hono backend server that fetches and analyzes data from the Farcaster API.
-              Enter your Farcaster ID (FID) above to view your metrics. The dashboard will automatically use your connected
-              Farcaster account if you've linked it with your wallet.
-            </p>
-            <div className="mt-4 text-sm text-[var(--app-foreground-muted)] p-2 bg-[var(--app-gray)] rounded">
-              <strong>Note:</strong> Currently displaying mock data. Backend integration with actual Farcaster API is in progress.
-            </div>
-          </div>
         </div>
       </div>
     </div>

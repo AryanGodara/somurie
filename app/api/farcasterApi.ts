@@ -1,6 +1,7 @@
 "use client";
 
 import { FarcasterMetrics, TrendingCastsResponse } from "../../shared/types/metrics";
+import { useMiniApp } from "@neynar/react";
 
 /**
  * Base API URL that points to our Hono backend
@@ -58,6 +59,37 @@ export const farcasterApi = {
       return response.json();
     } catch (error) {
       console.error('Error fetching trending casts:', error);
+      throw error;
+    }
+  },
+  
+  /**
+   * Get user metrics for the currently connected Farcaster user
+   * Makes direct call to the test endpoint for more detailed metrics
+   * @param context The MiniApp context with user info
+   */
+  async getCurrentUserMetrics(context: any): Promise<any> {
+    try {
+      if (!context || !context.fid) {
+        throw new Error('No Farcaster user connected');
+      }
+      
+      // Call the more detailed test endpoint for richer data
+      const response = await fetch(`${API_BASE_URL}/test/test-neynar/${context.fid}`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to fetch user metrics');
+      }
+
+      return response.json();
+    } catch (error) {
+      console.error('Error fetching current user metrics:', error);
       throw error;
     }
   }

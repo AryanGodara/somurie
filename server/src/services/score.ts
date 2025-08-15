@@ -172,19 +172,24 @@ export class ScoreCalculator {
     const today = new Date()
     today.setHours(0, 0, 0, 0)
 
+    // Count total scores
+    const totalCount = await CreatorScore.countDocuments({
+      scoreDate: { $gte: today },
+    })
+
+    // Handle empty database
+    if (totalCount === 0) {
+      return 50 // Default to median if no data
+    }
+
     // Count scores below this one
     const belowCount = await CreatorScore.countDocuments({
       scoreDate: { $gte: today },
       overallScore: { $lt: score },
     })
 
-    // Count total scores
-    const totalCount = await CreatorScore.countDocuments({
-      scoreDate: { $gte: today },
-    })
-
     // Calculate percentile
-    return Math.round((belowCount / Math.max(totalCount, 1)) * 100)
+    return Math.round((belowCount / totalCount) * 100)
   }
 
   /**
