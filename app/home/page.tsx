@@ -1,12 +1,12 @@
 'use client'
 
-import {useState, useEffect} from 'react'
-import MainPage from '../../components/MainPage'
+import React, {useState, useEffect} from 'react'
+import HomePage from '../../components/HomePage'
 
 const Home = () => {
   return(
     <>
-      <MainPage />
+      <HomePage />
     </>
   )
 }

@@ -27,7 +27,8 @@ export function Providers(props: { children: ReactNode }) {
           walletList: ["detected_wallets"],
         },
       }}
-    >
+    > 
+    <>
       <QueryClientProvider client={queryClient}>
         <WagmiProvider config={wagmiConfig}>
           <MiniKitProvider
@@ -46,6 +47,7 @@ export function Providers(props: { children: ReactNode }) {
           </MiniKitProvider>
         </WagmiProvider>
       </QueryClientProvider>
+    </>
     </PrivyProvider>
   );
 }

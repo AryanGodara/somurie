@@ -4,7 +4,6 @@
 @import "https://fonts.googleapis.com/css?family=DM+Mono:0,500&display=swap";
 @import "https://fonts.googleapis.com/css?family=Inter:0,undefined;0,500&display=swap";
 @import "https://fonts.googleapis.com/css?family=DM+Mono:0,500&display=swap";
-
 .IPhone_14_15ProMax_13_38_4752 {
   background: linear-gradient(#d2fff180 0%, #f2fecd80 100%);
   width: 100%;
@@ -91,7 +90,7 @@
 }
 .Image_6_38_4769 {
   aspect-ratio: 1;
-  background: #d3d3d3 url(<path-to-image>) 50% / cover no-repeat;
+  /* background: #d3d3d3 url(<path-to-image>) 50% / cover no-repeat; */
   flex-shrink: 0;
   width: 25px;
   height: 25px;
