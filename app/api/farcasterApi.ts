@@ -1,5 +1,6 @@
 "use client";
 
+import { Context } from "@farcaster/miniapp-sdk";
 import { FarcasterMetrics, TrendingCastsResponse } from "../../shared/types/metrics";
 import { useMiniApp } from "@neynar/react";
 
@@ -68,14 +69,14 @@ export const farcasterApi = {
    * Makes direct call to the test endpoint for more detailed metrics
    * @param context The MiniApp context with user info
    */
-  async getCurrentUserMetrics(context: any): Promise<any> {
+  async getCurrentUserMetrics(context: Context.MiniAppContext): Promise<any> {
     try {
-      if (!context || !context.fid) {
+      if (!context.user?.fid) {
         throw new Error('No Farcaster user connected');
       }
       
       // Call the more detailed test endpoint for richer data
-      const response = await fetch(`${API_BASE_URL}/test/test-neynar/${context.fid}`, {
+      const response = await fetch(`${API_BASE_URL}/test/test-neynar/${context.user.fid}`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json'

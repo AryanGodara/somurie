@@ -100,23 +100,26 @@ export class NeynarService {
    */
   private async fetchUserDetails(fid: number) {
     await this.rateLimiter.wait()
-    
+
     try {
       // Direct API call with hardcoded URL
-      const response = await fetch(`https://api.neynar.com/v2/farcaster/user/bulk?fids=${fid}`, {
-        method: 'GET',
-        headers: {
-          'x-api-key': this.apiKey,
-          'Accept': 'application/json',
+      const response = await fetch(
+        `https://api.neynar.com/v2/farcaster/user/bulk?fids=${fid}`,
+        {
+          method: 'GET',
+          headers: {
+            'x-api-key': this.apiKey,
+            Accept: 'application/json',
+          },
         },
-      })
+      )
 
       if (!response.ok) {
         throw new Error(`Neynar API error: ${response.status}`)
       }
-      
+
       const data = await response.json()
-    
+
       // Default values in case of API errors
       let username = `user_${fid}`
       let follower_count = 0
@@ -124,7 +127,13 @@ export class NeynarService {
       const power_badge = false
 
       // Try to extract data safely from response
-      if (data && typeof data === 'object' && 'users' in data && Array.isArray(data.users) && data.users.length > 0) {
+      if (
+        data &&
+        typeof data === 'object' &&
+        'users' in data &&
+        Array.isArray(data.users) &&
+        data.users.length > 0
+      ) {
         const user = data.users[0]
         if (user && typeof user === 'object') {
           if ('username' in user) {
@@ -173,7 +182,6 @@ export class NeynarService {
     // Check cache first
     const cached = this.getCachedValue<CreatorMetrics>(cacheKey)
     if (cached) {
-      console.log("Cached value used")
       return cached
     }
 
@@ -247,28 +255,29 @@ export class NeynarService {
       // Limit API calls to reduce usage
       for (let i = 0; i < 3; i++) {
         await this.rateLimiter.wait()
-        
+
         // Build URL with query params directly
         let url = `https://api.neynar.com/v1/castsByFid?fid=${fid}&limit=50`
         if (cursor) {
           url += `&cursor=${encodeURIComponent(cursor)}`
         }
-        
+
         const response = await fetch(url, {
           method: 'GET',
           headers: {
             'x-api-key': this.apiKey,
-            'Accept': 'application/json',
+            Accept: 'application/json',
           },
         })
 
         if (!response.ok) {
           break
         }
-        
+
         const responseData = await response.json()
-        if (!responseData || !responseData.result || !responseData.result.casts) break
-        
+        if (!responseData || !responseData.result || !responseData.result.casts)
+          break
+
         const castsData = responseData.result.casts
         if (!Array.isArray(castsData)) break
 

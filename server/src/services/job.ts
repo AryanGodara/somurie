@@ -118,7 +118,7 @@ export class JobProcessor {
    * Get all jobs (for testing/admin purposes)
    * @returns Array of job data with IDs
    */
-  getJobs(): Array<{id: string} & ScoreJobData> {
+  getJobs(): Array<{ id: string } & ScoreJobData> {
     return Array.from(this.jobs.entries()).map(([id, job]) => ({
       id,
       ...job,

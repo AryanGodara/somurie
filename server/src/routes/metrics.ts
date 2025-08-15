@@ -1,5 +1,5 @@
 import { Hono } from 'hono'
-import { neynarService, CastMetrics } from '../services/neynar'
+import { neynarService } from '../services/neynar'
 
 /**
  * Interface for user metrics response
@@ -33,24 +33,33 @@ export const metricsRoutes = new Hono()
 metricsRoutes.get('/:fid', async (c) => {
   const fidParam = c.req.param('fid')
   const fid = parseInt(fidParam, 10)
-  
-  if (isNaN(fid)) {
+
+  if (Number.isNaN(fid)) {
     return c.json({ error: 'Invalid FID provided' }, 400)
   }
 
   try {
     // Fetch actual metrics using NeynarService
     const creatorMetrics = await neynarService.getUserMetrics(fid)
-    
+
     // Transform to the expected response format
     const metrics: UserMetrics = {
       followers: creatorMetrics.followerCount,
       following: creatorMetrics.followingCount,
       casts: creatorMetrics.casts.length,
       // Calculate total reactions, replies and recasts
-      reactions: creatorMetrics.casts.reduce((sum, cast) => sum + cast.likes, 0),
-      replies: creatorMetrics.casts.reduce((sum, cast) => sum + cast.replies, 0),
-      recasts: creatorMetrics.casts.reduce((sum, cast) => sum + cast.recasts, 0),
+      reactions: creatorMetrics.casts.reduce(
+        (sum, cast) => sum + cast.likes,
+        0,
+      ),
+      replies: creatorMetrics.casts.reduce(
+        (sum, cast) => sum + cast.replies,
+        0,
+      ),
+      recasts: creatorMetrics.casts.reduce(
+        (sum, cast) => sum + cast.recasts,
+        0,
+      ),
       engagement_rate: creatorMetrics.engagementRate,
       last_updated: new Date().toISOString(),
     }
@@ -69,27 +78,27 @@ metricsRoutes.get('/:fid', async (c) => {
 metricsRoutes.get('/:fid/trending', async (c) => {
   const fidParam = c.req.param('fid')
   const fid = parseInt(fidParam, 10)
-  
-  if (isNaN(fid)) {
+
+  if (Number.isNaN(fid)) {
     return c.json({ error: 'Invalid FID provided' }, 400)
   }
 
   try {
     // Fetch metrics using NeynarService
     const creatorMetrics = await neynarService.getUserMetrics(fid)
-    
+
     // Find trending casts (sort by engagement - likes + recasts + replies)
     const sortedCasts = [...creatorMetrics.casts].sort((a, b) => {
       const engagementA = a.likes + a.recasts * 2 + a.replies * 1.5
       const engagementB = b.likes + b.recasts * 2 + b.replies * 1.5
-      return engagementB - engagementA  // Sort descending
+      return engagementB - engagementA // Sort descending
     })
-    
+
     // Take top 5 trending casts or fewer if not enough
     const topCasts = sortedCasts.slice(0, 5)
-    
+
     // Map to TrendingCast format
-    const trendingCasts: TrendingCast[] = topCasts.map(cast => ({
+    const trendingCasts: TrendingCast[] = topCasts.map((cast) => ({
       hash: cast.hash,
       text: '', // API doesn't provide text content in free tier
       reactions: cast.likes,
