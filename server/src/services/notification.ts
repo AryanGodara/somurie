@@ -17,8 +17,6 @@ interface NotificationPayload {
  * Handles sending notifications to users via Neynar
  */
 export class NotificationService {
-  private client: NeynarAPIClient
-
   constructor() {
     const config = new Configuration({
       apiKey: env.NEYNAR_API_KEY,

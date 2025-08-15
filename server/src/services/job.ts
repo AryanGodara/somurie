@@ -53,7 +53,7 @@ export class JobProcessor {
     setTimeout(() => {
       // Run the job immediately when we reach the target time
       this.runDailyJob()
-      
+
       // Then set up the recurring daily job
       setInterval(this.runDailyJob.bind(this), 24 * 60 * 60 * 1000)
     }, timeUntilNextRun)

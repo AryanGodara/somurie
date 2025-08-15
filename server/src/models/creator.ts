@@ -31,7 +31,7 @@ const creatorSchema = new Schema(
     username: {
       type: String,
       required: true,
-      index: true,
+      // Index is created explicitly below
     },
 
     // Follower statistics
