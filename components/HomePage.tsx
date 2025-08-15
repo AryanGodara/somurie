@@ -8,6 +8,11 @@ import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
 
 export default function HomePage() {
   const [usernameQuery, setUsernameQuery] = useState('')
+  const [creators, setCreators] = useState([
+    creatorRank,
+    creatorName,
+    creatorScore
+  ])
   
   return (
     <>
@@ -37,7 +42,7 @@ export default function HomePage() {
             {/* Logo */}
             <div className="text-center">
               <div className="inline-flex items-center gap-2 bg-teal-700 text-white px-4 py-2 rounded-full font-bold text-lg">
-                logoipsum
+                Somurie
                 <div className="w-6 h-6 bg-white rounded-full flex items-center justify-center">
                   <div className="w-3 h-3 bg-teal-700 rounded-full"></div>
                 </div>
@@ -50,6 +55,7 @@ export default function HomePage() {
             <Input
               placeholder="Find creator"
               className="bg-white border-gray-200 py-3 text-gray-600 placeholder:text-gray-400"
+              onChange={(e:any) => setUsernameQuery(e.target.value)} 
             />
             <Button className="w-full bg-orange-400 hover:bg-orange-500 text-white font-medium py-3">
               Calculate creator score
@@ -60,11 +66,11 @@ export default function HomePage() {
           <Card className="p-4 bg-white/80 backdrop-blur-sm">
             <h3 className="font-medium text-gray-700 mb-4">Today's Top Creators</h3>
             <div className="space-y-3">
-              {[1, 2, 3].map((rank) => (
-                <div key={rank} className="flex items-center gap-3">
+              {creators.map((i) => (
+                <div key={i.creatorName} className="flex items-center gap-3">
                   {/* Rank badge */}
                   <div className="w-6 h-6 rounded-full bg-yellow-400 flex items-center justify-center text-xs font-bold text-yellow-800">
-                    {rank}
+                    {i.creatorRank}
                   </div>
 
                   {/* Avatar */}
@@ -75,8 +81,8 @@ export default function HomePage() {
 
                   {/* Name and Score */}
                   <div className="flex-1 flex items-center justify-between">
-                    <span className="text-gray-700 font-medium">OxIshika</span>
-                    <span className="text-teal-700 font-bold text-lg">100</span>
+                    <span className="text-gray-700 font-medium">{creatorName}</span>
+                    <span className="text-teal-700 font-bold text-lg">{creatorScore}</span>
                   </div>
                 </div>
               ))}

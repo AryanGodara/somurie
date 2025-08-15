@@ -8,8 +8,23 @@ import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
 
 export default function ScorePage() {
   const [loading, setLoading] = useState('')
+  const [creatorUsername, setCreatorUsername] = useState('')
   const [creatorScore, setCreatorScore] = useState(0)
-  const [creatorStage, setCreatorStage] = useState('small' | 'big')
+  const [creatorStage, setCreatorStage] = useState('Small Creator' | 'Big Creator')
+  const [qualityScore, setQualityScore] = useState(0)
+  const [networkScore, setNetworkScore] = useState(0)
+  const [growthScore, setGrowthScore] = useState(0)
+  const [engagementScore, setEngagementScore] = useStae(0)
+  const [consistencyScore, setConsistencyScore] = useState(0)
+  const [creatorPercentile, setCreatorPercentil] = useState('')
+
+  const share = () => {
+    
+  }
+  
+  const mintNFT = () => {
+    
+  }
   return (
     <div className="min-h-screen bg-gradient-to-b from-emerald-50 to-emerald-100 p-4">
       <div className="max-w-sm mx-auto space-y-6">
@@ -19,7 +34,7 @@ export default function ScorePage() {
           <p className="text-gray-600 text-lg">Your creator score</p>
           <Badge className="bg-teal-700 hover:bg-teal-800 text-white px-4 py-2">
             <span className="mr-2">🎯</span>
-            Small Creator
+            {creatorStage}
           </Badge>
         </div>
 
@@ -53,11 +68,11 @@ export default function ScorePage() {
           <h3 className="text-gray-600 font-medium mb-4">Score Breakdown</h3>
           <div className="space-y-3">
             {[
-              { label: "1. Engagement", score: "3/10" },
-              { label: "2. Consistency", score: "3/10" },
-              { label: "3. Growth", score: "3/10" },
-              { label: "4. Quality", score: "3/10" },
-              { label: "5. Network", score: "3/10" },
+              { label: "1. Engagement", score: `${engagementScore}/10` },
+              { label: "2. Consistency", score: `${consistencyScore}/10` },
+              { label: "3. Growth", score: `${growthScore}/10` },
+              { label: "4. Quality", score: `${qualityScore}/10` },
+              { label: "5. Network", score: `${networkScore}/10` },
             ].map((item, index) => (
               <div key={index} className="flex justify-between items-center">
                 <span className="text-gray-500">{item.label}</span>
@@ -65,7 +80,7 @@ export default function ScorePage() {
               </div>
             ))}
           </div>
-          <p className="text-center text-gray-600 mt-6 font-medium">You are in the top 25% of creators!</p>
+          <p className="text-center text-gray-600 mt-6 font-medium">You are in the {creatorPercentile} of creators!</p>
         </Card>
 
         {/* Profile Card */}
@@ -87,14 +102,14 @@ export default function ScorePage() {
               <AvatarFallback>O</AvatarFallback>
             </Avatar>
             <div className="flex-1">
-              <p className="font-medium text-gray-700">Oxishika</p>
+              <p className="font-medium text-gray-700">{creatorUsername}</p>
             </div>
           </div>
 
           <div className="flex items-end justify-between mt-4">
             <div>
-              <div className="text-4xl font-bold text-teal-700">34</div>
-              <p className="text-sm text-gray-600">Small creator</p>
+              <div className="text-4xl font-bold text-teal-700">{creatorScore}</div>
+              <p className="text-sm text-gray-600">{creatorStage}</p>
             </div>
 
             {/* Mini mascot */}
