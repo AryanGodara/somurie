@@ -64,6 +64,7 @@ metricsRoutes.get('/:fid', async (c) => {
       last_updated: new Date().toISOString(),
     }
 
+    console.log("Fetched the metrics, sending response: ", metrics)
     return c.json({
       fid: fidParam,
       metrics,
