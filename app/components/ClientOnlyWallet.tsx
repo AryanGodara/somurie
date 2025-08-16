@@ -7,7 +7,7 @@ import { usePrivy } from "@privy-io/react-auth";
  * A client-only component that renders a simple Privy login/logout button
  * Using Privy's hooks for authentication
  */
-export function ClientOnlyWallet_Privy() {
+export function ClientOnlyWallet() {
   const [mounted, setMounted] = useState(false);
   const { ready, authenticated, login, logout, user } = usePrivy();
 

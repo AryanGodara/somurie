@@ -53,3 +53,5 @@ contracts/broadcast
 contracts/.password.local
 contracts/.password.test
 contracts/.password.main
+
+/mini-app
