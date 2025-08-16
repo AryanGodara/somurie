@@ -14,9 +14,9 @@ export default function ScorePage() {
   const [qualityScore, setQualityScore] = useState(0)
   const [networkScore, setNetworkScore] = useState(0)
   const [growthScore, setGrowthScore] = useState(0)
-  const [engagementScore, setEngagementScore] = useStae(0)
+  const [engagementScore, setEngagementScore] = useState(0)
   const [consistencyScore, setConsistencyScore] = useState(0)
-  const [creatorPercentile, setCreatorPercentil] = useState('')
+  const [creatorPercentile, setCreatorPercentile] = useState('')
 
   const share = () => {
     

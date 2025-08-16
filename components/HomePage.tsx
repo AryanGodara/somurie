@@ -8,11 +8,11 @@ import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
 
 export default function HomePage() {
   const [usernameQuery, setUsernameQuery] = useState('')
-  const [creators, setCreators] = useState([
-    creatorRank,
-    creatorName,
-    creatorScore
-  ])
+  const [creators, setCreators] = useState([{
+    creatorRank: '',
+    creatorName: '',
+    creatorScore: 0
+  }])
   
   return (
     <>
@@ -73,16 +73,16 @@ export default function HomePage() {
                     {i.creatorRank}
                   </div>
 
-                  {/* Avatar */}
+                 
                   <Avatar className="w-8 h-8">
                     <AvatarImage src="/placeholder.svg?height=32&width=32" />
                     <AvatarFallback className="text-xs">O</AvatarFallback>
                   </Avatar>
 
-                  {/* Name and Score */}
+                 
                   <div className="flex-1 flex items-center justify-between">
-                    <span className="text-gray-700 font-medium">{creatorName}</span>
-                    <span className="text-teal-700 font-bold text-lg">{creatorScore}</span>
+                    <span className="text-gray-700 font-medium">{i.creatorName}</span>
+                    <span className="text-teal-700 font-bold text-lg">{i.creatorScore}</span>
                   </div>
                 </div>
               ))}
