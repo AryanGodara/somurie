@@ -20,6 +20,11 @@ interface ProfileData {
 
 export default function ProfilePage() {
   const [showModal, setShowModal] = useState(false)
+  const [creatorLevel, setCreatorLevel] = useState('')
+  const [creatorLevelNumber, setCreatorNumberLevel] = useState(0)
+  const [progress, setProgress] = useState('')
+  const [progressText, setProgressText] = useState('')
+
   // Example: const data = await fetch('/api/profile').then(res => res.json())
   const profileData: ProfileData = {
     level: "Small Creator",
@@ -156,7 +161,7 @@ export default function ProfilePage() {
       {/* Bottom Navigation */}
       <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200">
         <div className="flex justify-around py-2">
-          <Button variant="ghost" className="flex flex-col items-center p-3 text-green-600">
+          <Button variant="ghost" className="flex flex-col items-center p-3 text-green-600" onClick={() => router.push('/home')>
             <Home className="w-6 h-6" />
             <span className="text-xs mt-1">Home</span>
           </Button>
