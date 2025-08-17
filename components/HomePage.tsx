@@ -94,7 +94,7 @@ export default function HomePage() {
           <div className="flex justify-center pb-20">
             <div className="relative">
               <img 
-                src="/sprout.png" 
+                src="sprout.png" 
                 alt="Sprout mascot" 
                 className="w-24 h-24 object-contain"
               />

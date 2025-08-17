@@ -3,7 +3,7 @@
 import {useRouter} from 'next/navigation'
 import Link from 'next/link'
 import {Button} from '@/components/ui/button'
-import { Home, Activity, Search, Gift } from "lucide-react"
+import { Home, Trophy, User, Gem } from "lucide-react"
 
 const AppNav = () => {
   const router = useRouter()
@@ -16,15 +16,15 @@ const AppNav = () => {
         <span className="text-xs mt-1">Home</span>
       </Button>
       <Button variant="ghost" className="flex flex-col items-center p-3 text-gray-400" onClick={() => router.push('/leaderboard')}>
-        <Activity className="w-6 h-6" />
+        <Trophy className="w-6 h-6" />
         <span className="text-xs mt-1">Leaderboard</span>
       </Button>
       <Button variant="ghost" className="flex flex-col items-center p-3 text-gray-400" onClick={() => router.push('/profile')}>
-        <Search className="w-6 h-6" />
+        <User className="w-6 h-6" />
         <span className="text-xs mt-1">Profile</span>
       </Button>
       <Button variant="ghost" className="flex flex-col items-center p-3 text-gray-400" onClick={() => router.push('/score')}>
-        <Gift className="w-6 h-6" />
+        <Gem className="w-6 h-6" />
         <span className="text-xs mt-1">Score</span>
       </Button>
     </div>

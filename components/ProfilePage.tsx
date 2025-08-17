@@ -1,7 +1,6 @@
 "use client"
 
 import { useState } from "react"
-import { useRouter } from 'next/router'
 import { Button } from "@/components/ui/button"
 import { Progress } from "@/components/ui/progress"
 import { Home, Activity, Search, Gift, X } from "lucide-react"
@@ -21,7 +20,6 @@ interface ProfileData {
 }
 
 export default function ProfilePage() {
-  const router = useRouter()
   const [showModal, setShowModal] = useState(false)
   const [creatorLevel, setCreatorLevel] = useState('')
   const [creatorLevelNumber, setCreatorNumberLevel] = useState(0)
