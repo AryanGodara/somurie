@@ -67,24 +67,11 @@ export default function ProfilePage() {
       {/* Character Section */}
       <div className="flex flex-col items-center mb-8">
         <div className="relative mb-4">
-          {/* Green blob character */}
-          <div className="w-32 h-32 bg-green-400 rounded-full relative flex items-center justify-center">
-            {/* Eyes */}
-            <div className="absolute top-8 left-8 w-4 h-4 bg-white rounded-full flex items-center justify-center">
-              <div className="w-2 h-2 bg-black rounded-full"></div>
-            </div>
-            <div className="absolute top-8 right-8 w-4 h-4 bg-white rounded-full flex items-center justify-center">
-              <div className="w-2 h-2 bg-black rounded-full"></div>
-            </div>
-            {/* Smile */}
-            <div className="absolute bottom-8 w-8 h-4 border-b-2 border-black rounded-full"></div>
-            {/* Arms */}
-            <div className="absolute -left-4 top-16 w-8 h-8 bg-green-400 rounded-full"></div>
-            <div className="absolute -right-4 top-16 w-8 h-8 bg-green-400 rounded-full"></div>
-            {/* Legs */}
-            <div className="absolute -bottom-2 left-6 w-6 h-8 bg-green-400 rounded-full"></div>
-            <div className="absolute -bottom-2 right-6 w-6 h-8 bg-green-400 rounded-full"></div>
-          </div>
+          <img 
+            src="/sprout.png" 
+            alt="Sprout mascot" 
+            className="w-32 h-32 object-contain"
+          />
         </div>
 
         {/* Level Badge */}

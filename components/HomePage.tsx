@@ -93,28 +93,11 @@ export default function HomePage() {
           {/* Mascot Character */}
           <div className="flex justify-center pb-20">
             <div className="relative">
-              <div className="w-24 h-24 bg-teal-400 rounded-full relative">
-                {/* Character body */}
-                <div className="absolute inset-1.5 bg-teal-300 rounded-full">
-                  {/* Eyes */}
-                  <div className="absolute top-4 left-4 w-3 h-3 bg-black rounded-full"></div>
-                  <div className="absolute top-4 right-4 w-3 h-3 bg-black rounded-full"></div>
-                  {/* Eye highlights */}
-                  <div className="absolute top-4.5 left-4.5 w-1.5 h-1.5 bg-white rounded-full"></div>
-                  <div className="absolute top-4.5 right-4.5 w-1.5 h-1.5 bg-white rounded-full"></div>
-                  {/* Smile */}
-                  <div className="absolute bottom-6 left-1/2 transform -translate-x-1/2 w-3 h-1.5 border-b-2 border-black rounded-full"></div>
-                  {/* Eyebrows */}
-                  <div className="absolute top-3 left-3.5 w-4 h-0.5 bg-teal-500 rounded-full transform -rotate-12"></div>
-                  <div className="absolute top-3 right-3.5 w-4 h-0.5 bg-teal-500 rounded-full transform rotate-12"></div>
-                </div>
-                {/* Feet */}
-                <div className="absolute -bottom-1 left-6 w-3 h-6 bg-teal-600 rounded-full"></div>
-                <div className="absolute -bottom-1 right-6 w-3 h-6 bg-teal-600 rounded-full"></div>
-              </div>
-
-              {/* Ground/grass effect */}
-              <div className="absolute -bottom-2 left-1/2 transform -translate-x-1/2 w-32 h-4 bg-gradient-to-t from-green-400 to-transparent rounded-full"></div>
+              <img 
+                src="/sprout.png" 
+                alt="Sprout mascot" 
+                className="w-24 h-24 object-contain"
+              />
             </div>
           </div>
         </div>

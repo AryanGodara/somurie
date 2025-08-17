@@ -42,25 +42,11 @@ export default function ScorePage() {
         {/* Mascot Character */}
         <div className="flex justify-center">
           <div className="relative">
-            <div className="w-32 h-32 bg-teal-400 rounded-full relative">
-              {/* Character body */}
-              <div className="absolute inset-2 bg-teal-300 rounded-full">
-                {/* Eyes */}
-                <div className="absolute top-6 left-6 w-4 h-4 bg-black rounded-full"></div>
-                <div className="absolute top-6 right-6 w-4 h-4 bg-black rounded-full"></div>
-                {/* Eye highlights */}
-                <div className="absolute top-7 left-7 w-2 h-2 bg-white rounded-full"></div>
-                <div className="absolute top-7 right-7 w-2 h-2 bg-white rounded-full"></div>
-                {/* Smile */}
-                <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 w-4 h-2 border-b-2 border-black rounded-full"></div>
-                {/* Eyebrows */}
-                <div className="absolute top-4 left-5 w-6 h-1 bg-teal-500 rounded-full transform -rotate-12"></div>
-                <div className="absolute top-4 right-5 w-6 h-1 bg-teal-500 rounded-full transform rotate-12"></div>
-              </div>
-              {/* Feet */}
-              <div className="absolute -bottom-2 left-8 w-4 h-8 bg-teal-600 rounded-full"></div>
-              <div className="absolute -bottom-2 right-8 w-4 h-8 bg-teal-600 rounded-full"></div>
-            </div>
+            <img 
+              src="/sprout.png" 
+              alt="Sprout mascot" 
+              className="w-32 h-32 object-contain"
+            />
           </div>
         </div>
 
@@ -114,19 +100,11 @@ export default function ScorePage() {
             </div>
 
             {/* Mini mascot */}
-            <div className="w-16 h-16 bg-teal-400 rounded-full relative">
-              <div className="absolute inset-1 bg-teal-300 rounded-full">
-                <div className="absolute top-2 left-2 w-2 h-2 bg-black rounded-full"></div>
-                <div className="absolute top-2 right-2 w-2 h-2 bg-black rounded-full"></div>
-                <div className="absolute top-2.5 left-2.5 w-1 h-1 bg-white rounded-full"></div>
-                <div className="absolute top-2.5 right-2.5 w-1 h-1 bg-white rounded-full"></div>
-                <div className="absolute bottom-3 left-1/2 transform -translate-x-1/2 w-2 h-1 border-b border-black rounded-full"></div>
-                <div className="absolute top-1.5 left-1.5 w-3 h-0.5 bg-teal-500 rounded-full transform -rotate-12"></div>
-                <div className="absolute top-1.5 right-1.5 w-3 h-0.5 bg-teal-500 rounded-full transform rotate-12"></div>
-              </div>
-              <div className="absolute -bottom-1 left-2 w-2 h-4 bg-teal-600 rounded-full"></div>
-              <div className="absolute -bottom-1 right-2 w-2 h-4 bg-teal-600 rounded-full"></div>
-            </div>
+            <img 
+              src="/sprout.png" 
+              alt="Sprout mascot" 
+              className="w-16 h-16 object-contain"
+            />
           </div>
 
           {/* Ground/grass effect */}
