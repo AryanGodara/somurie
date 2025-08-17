@@ -4,6 +4,7 @@ import { useState, useEffect} from 'react'
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import { Home, Activity, Search, Gift } from "lucide-react"
+import AppNav from '@/components/nav/AppNav'
 
 interface LeaderboardUser {
   id: string
@@ -124,26 +125,7 @@ export default function LeaderboardPage() {
       </div>
 
       {/* Bottom Navigation */}
-      <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200">
-        <div className="flex justify-around py-2">
-          <Button variant="ghost" className="flex flex-col items-center p-3 text-green-600">
-            <Home className="w-6 h-6" />
-            <span className="text-xs mt-1">Home</span>
-          </Button>
-          <Button variant="ghost" className="flex flex-col items-center p-3 text-gray-400">
-            <Activity className="w-6 h-6" />
-            <span className="text-xs mt-1">Activity</span>
-          </Button>
-          <Button variant="ghost" className="flex flex-col items-center p-3 text-gray-400">
-            <Search className="w-6 h-6" />
-            <span className="text-xs mt-1">Explore</span>
-          </Button>
-          <Button variant="ghost" className="flex flex-col items-center p-3 text-gray-400">
-            <Gift className="w-6 h-6" />
-            <span className="text-xs mt-1">Rewards</span>
-          </Button>
-        </div>
-      </div>
+      <AppNav />
     </div>
   )
 }

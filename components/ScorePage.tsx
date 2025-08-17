@@ -5,12 +5,13 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Card } from "@/components/ui/card"
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
+import AppNav from '@/components/nav/AppNav'
 
 export default function ScorePage() {
   const [loading, setLoading] = useState('')
   const [creatorUsername, setCreatorUsername] = useState('')
   const [creatorScore, setCreatorScore] = useState(0)
-  const [creatorStage, setCreatorStage] = useState('Small Creator' | 'Big Creator')
+  const [creatorStage, setCreatorStage] = useState('')
   const [qualityScore, setQualityScore] = useState(0)
   const [networkScore, setNetworkScore] = useState(0)
   const [growthScore, setGrowthScore] = useState(0)
@@ -142,6 +143,8 @@ export default function ScorePage() {
             Mint NFT
           </Button>
         </div>
+
+        <AppNav />
       </div>
     </div>
   )

@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card } from "@/components/ui/card"
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
+import AppNav from '@/components/nav/AppNav'
 
 export default function HomePage() {
   const [usernameQuery, setUsernameQuery] = useState('')
@@ -120,28 +121,7 @@ export default function HomePage() {
       </div>
 
       {/* Bottom Navigation */}
-      <div className="bg-white border-t border-gray-200 px-4 py-2">
-        <div className="max-w-sm mx-auto">
-          <div className="flex justify-around items-center">
-            <button className="flex flex-col items-center gap-1 py-2">
-              <div className="w-6 h-6 bg-teal-700 rounded-full"></div>
-              <span className="text-xs text-teal-700 font-medium">Home</span>
-            </button>
-            <button className="flex flex-col items-center gap-1 py-2">
-              <div className="w-6 h-6 bg-gray-300 rounded-full"></div>
-              <span className="text-xs text-gray-400">Activity</span>
-            </button>
-            <button className="flex flex-col items-center gap-1 py-2">
-              <div className="w-6 h-6 bg-gray-300 rounded-full"></div>
-              <span className="text-xs text-gray-400">Explore</span>
-            </button>
-            <button className="flex flex-col items-center gap-1 py-2">
-              <div className="w-6 h-6 bg-gray-300 rounded-full"></div>
-              <span className="text-xs text-gray-400">Rewards</span>
-            </button>
-          </div>
-        </div>
-      </div>
+      <AppNav />
     </div>
     </>
   )
